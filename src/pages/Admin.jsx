@@ -6,11 +6,11 @@ import { API_BASE_URL } from "../config";
 export default function Admin() {
     const navigate = useNavigate();
     const [data, setData] = useState([]);
+    const [properties, setProperties] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [search, setSearch] = useState("");
 
     const userDetails = JSON.parse(localStorage.getItem('user'));
-
 
     const getInitials = (name) => {
         if (!name) return "";
@@ -20,40 +20,57 @@ export default function Admin() {
         }
         return words[0][0].toUpperCase() + words[1][0].toUpperCase();
     };
-    const fetchOwners = async () => {
+    const fetchUsers = async () => {
         fetch(`${API_BASE_URL}/users`)
             .then((response) => response.json())
             .then((data) => {
-                // Add a `status` field to mock active/inactive users
-                const updatedData = data.map(user => ({
-                    ...user,
-                    status: Math.random() > 0.5 ? "Active" : "Inactive" // Randomly assign status
-                }));
-                setData(updatedData);
-                setFilteredData(updatedData);
+                setData(data);
+                setFilteredData(data);
+                setProperties([]);
             })
             .catch((error) => console.error("Error fetching data:", error));
     }
     useEffect(() => {
-        fetchOwners();
+        fetchUsers();
     }, []);
+
+    const fetchProperties = async () => {
+        fetch(`${API_BASE_URL}/properties`)
+            .then((response) => response.json())
+            .then((data) => {
+                const firstNProperties = data.slice(0, 10);
+                setProperties(firstNProperties);
+                setFilteredData([]);
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+
+    }
 
     // Handle Search
     useEffect(() => {
         const result = data.filter((row) =>
-            row.name.toLowerCase().includes(search.toLowerCase()) ||
-            row.email.toLowerCase().includes(search.toLowerCase()) ||
-            row.phone.toLowerCase().includes(search.toLowerCase())
+            (row.firstName?.toLowerCase() || "").includes(search.toLowerCase()) ||
+            (row.email?.toLowerCase() || "").includes(search.toLowerCase()) ||
+            (row.username?.toLowerCase() || "").includes(search.toLowerCase())
         );
-        setFilteredData(result);
+        const sortedData = [...result].sort((a, b) => b.id - a.id);
+
+        setFilteredData(sortedData);
     }, [search, data]);
 
     // Toggle Activation Status
-    const toggleStatus = (id) => {
+    const toggleStatus = async (id, new_status) => {
+        const requestOptions = {
+            method: "PATCH",
+            redirect: "follow"
+        };
+
+        fetch(`${API_BASE_URL}/users/${id}/status?enabled=${new_status}`, requestOptions);
+
         setData(prevData =>
             prevData.map(user =>
                 user.id === id
-                    ? { ...user, status: user.status === "Active" ? "Inactive" : "Active" }
+                    ? { ...user, enabled: !user.enabled }
                     : user
             )
         );
@@ -68,7 +85,7 @@ export default function Admin() {
         },
         {
             name: "Name",
-            selector: (row) => row.name,
+            selector: (row) => row.firstName + ' ' + row.lastName,
             sortable: true,
         },
         {
@@ -77,19 +94,24 @@ export default function Admin() {
             sortable: true,
         },
         {
-            name: "Phone",
-            selector: (row) => row.phone,
+            name: "Username",
+            selector: (row) => row.username,
+            sortable: true,
+        },
+        {
+            name: "Role",
+            selector: (row) => row.role,
             sortable: true,
         },
         {
             name: "Actions",
             cell: (row) => (
                 <button
-                    className={`px-3 py-1 rounded-md text-white text-xs transition ${row.status === "Active" ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                    className={`px-3 py-1 rounded-md text-white text-xs transition ${row.enabled === true ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
                         }`}
-                    onClick={() => toggleStatus(row.id)}
+                    onClick={() => toggleStatus(row.id, !row.enabled)}
                 >
-                    {row.status === "Active" ? "Deactivate" : "Activate"}
+                    {row.enabled === true ? "Deactivate" : "Activate"}
                 </button>
             ),
             ignoreRowClick: true
@@ -97,31 +119,34 @@ export default function Admin() {
     ];
 
     const handleLogout = () => {
-        localStorage.removeItem("role");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
         navigate("/");
     };
 
-
     return (
         <>
             <div className="flex gap-5">
-                <div className="w-full md:w-1/4">
+                <div className="w-full md:w-1/4 mb-9">
                     <div className="sticky top-20">
                         <div className="p-4 pb-0">
                             <div className="flex align-center justify-start pb-4">
                                 <div className="mr-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 text-white text-xl font-bold">
-                                    {getInitials(userDetails.name)}
+                                    {getInitials(userDetails.firstName + ' ' + userDetails.lastName)}
                                 </div>
                                 <div className="">
-                                    <div className="text-xl">{userDetails.name}</div>
+                                    <div className="text-xl">{userDetails.firstName + ' ' + userDetails.lastName}</div>
                                     <small>{userDetails.email}</small>
                                 </div>
                             </div>
                         </div>
                         <ul className="p-0 border-t border-gray-400">
-                            <li onClick={fetchOwners} className="cursor-pointer p-4 hover:bg-gray-200">
-                                <span>Owners</span>
+                            <li onClick={fetchUsers} className="cursor-pointer p-4 hover:bg-gray-200">
+                                <span>Users</span>
+                            </li>
+                            <li onClick={fetchProperties} className="cursor-pointer p-4 hover:bg-gray-200">
+                                <span>Recent Properties</span>
                             </li>
                             <li onClick={handleLogout} className="cursor-pointer p-4 hover:bg-gray-200">
                                 <span>Logout</span>
@@ -131,26 +156,49 @@ export default function Admin() {
 
 
                 </div>
-                <div className="w-full md:w-3/4">
-                    <h2 className="text-xl text-center font-semibold mb-4">Owners</h2>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
 
-                    <DataTable
-                        columns={columns}
-                        data={filteredData} // Use filtered data for searching
-                        pagination
-                        highlightOnHover
-                        responsive
-                        striped
-                    />
-                </div>
+                {filteredData.length > 0 &&
+                    <div className="w-full md:w-3/4">
+                        <h2 className="text-xl text-center font-semibold mb-4">Users</h2>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+
+                        <DataTable
+                            columns={columns}
+                            data={filteredData}
+                            pagination
+                            highlightOnHover
+                            responsive
+                            striped
+                            defaultSortFieldId="id"
+                            defaultSortAsc={false}
+                        />
+                    </div>
+                }
+                {properties.length > 0 &&
+                    <div className="w-full md:w-3/4">
+                        <h2 className="text-xl text-center font-semibold mb-4">Properties</h2>
+                        <ul>
+                            {properties.map((property) => (
+                                <li className="bg-white p-3 flex">
+                                    <img width="200" src="https://static8.depositphotos.com/1007959/943/i/450/depositphotos_9433517-stock-photo-house-for-sale-real-estate.jpg" />
+                                    <div className="flex-1 ml-3">
+                                        <strong className="mb-6">{property.name}</strong>
+                                        <p>{property.description}</p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                }
             </div>
+
         </>
     );
 }

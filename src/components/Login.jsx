@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Login() {
+    const navigate = useNavigate();
     const [showLoginPassword, setShowLoginPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const login = async () => {
         const postData = {
-            'email': email,
+            'username': email,
             'password': password
         };
-        const res = await fetch(`${API_BASE_URL}login.php`, {
+        const res = await fetch(`${API_BASE_URL}/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,13 +22,24 @@ export default function Login() {
             body: JSON.stringify(postData)
         });
         const response = await res.json();
+        const statusCode = res.status;
 
-        if (response.status == 200) {
-            localStorage.setItem("user", JSON.stringify(response.user));
-            localStorage.setItem("role", response.user.role);
-            window.location.href = "/" + response.user.role;
+        if (statusCode == 200) {
+            localStorage.setItem("user", JSON.stringify(response.userDetail));
+            localStorage.setItem("access_token", response.accessToken);
+            localStorage.setItem("refresh_token", response.refreshToken);
+            const role = response.userDetail.role.toLowerCase();
+            navigate('/' + role);
         }
     }
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = user.role ? user.role.toLowerCase() : null;
+        if (role) {
+            navigate('/' + role);
+        }
+    }, []);
 
     return (
         <>
@@ -40,14 +53,14 @@ export default function Login() {
                 <div className="space-y-6">
                     <div>
                         <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-2">
-                            Email address
+                            Username
                         </label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <i className="fa fa-envelope h-5 w-5 text-gray-400"></i>
                             </div>
                             <input
-                                type="email"
+                                type="text"
                                 id="login-email"
                                 name="email"
                                 autoComplete="email"
