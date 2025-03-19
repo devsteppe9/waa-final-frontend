@@ -13,7 +13,5 @@ services:
       NODE_ENV: production
     build:
       context: .
-      args:
-        - API_BASE_URL=http://52.90.131.91/waa-backend/api/v1
     ports:
       - 8082:80

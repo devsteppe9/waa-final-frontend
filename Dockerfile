@@ -5,8 +5,7 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-ARG API_BASE_URL
-RUN VITE_API_BASE_URL=$API_BASE_URL npm run build
+RUN VITE_API_BASE_URL=http://52.90.131.91/waa-backend/api/v1 npm run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
