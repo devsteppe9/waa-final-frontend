@@ -24,17 +24,17 @@ export default function Customer() {
     };
 
     const fetchOfferHistory = async () => {
-        fetch(`${API_BASE_URL}offerhistory.php`)
+        /*fetch(`${API_BASE_URL}offers`)
             .then((response) => response.json())
             .then((data) => {
                 setOfferHistory(data.data);
                 setAvailableProperties([]);
                 setSavedProperties([]);
             })
-            .catch((error) => console.error("Error fetching data:", error));
+            .catch((error) => console.error("Error fetching data:", error));*/
     }
     const fetchSavedProperties = async () => {
-        fetch(`${API_BASE_URL}savedproperties.php`)
+        fetch(`${API_BASE_URL}/properties`)
             .then((response) => response.json())
             .then((data) => {
                 setSavedProperties(data.data);
@@ -44,7 +44,7 @@ export default function Customer() {
             .catch((error) => console.error("Error fetching data:", error));
     }
     const fetchAvailableProperties = async () => {
-        fetch(`${API_BASE_URL}properties.php`)
+        fetch(`${API_BASE_URL}/properties`)
             .then((response) => response.json())
             .then((data) => {
                 setAvailableProperties(data.data);
@@ -72,10 +72,10 @@ export default function Customer() {
                             <div className="p-4 pb-0">
                                 <div className="flex align-center justify-start pb-4">
                                     <div className="mr-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 text-white text-xl font-bold">
-                                        {getInitials(userDetails.name)}
+                                        {getInitials(userDetails.firstName)}
                                     </div>
                                     <div className="">
-                                        <div className="text-xl">{userDetails.name}</div>
+                                        <div className="text-xl">{userDetails.firstName}</div>
                                         <small>{userDetails.email}</small>
                                     </div>
                                 </div>
