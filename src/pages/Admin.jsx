@@ -21,7 +21,7 @@ export default function Admin() {
         return words[0][0].toUpperCase() + words[1][0].toUpperCase();
     };
     const fetchOwners = async () => {
-        fetch(`${API_BASE_URL}owners.php`)
+        fetch(`${API_BASE_URL}/users`)
             .then((response) => response.json())
             .then((data) => {
                 // Add a `status` field to mock active/inactive users
