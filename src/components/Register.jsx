@@ -1,9 +1,80 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_BASE_URL } from "../config";
 
 export default function Register() {
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [roles, setRoles] = useState([]);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: '',
+        accountType: '',
+        password: '',
+        confirmPassword: '',
+        terms: false
+    });
+    
+    useEffect(() => {
+        axios.get(`${API_BASE_URL}/system/roles`)
+            .then(response => {
+                setRoles(response.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the roles!', error);
+            });
+    }, []);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === 'checkbox' ? checked : value,
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (formData.password !== formData.confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        axios.post(`${API_BASE_URL}/auth/register`, {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            username: formData.username,
+            email: formData.email,
+            role: formData.accountType,
+            password: formData.password,
+            enabled: formData.accountType === 'OWNER' ? false : true,
+        })
+        .then(response => {
+            alert('Registration successful');
+            // Reset form data
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    username: '',
+                    email: '',
+                    accountType: '',
+                    password: '',
+                    confirmPassword: '',
+                    terms: false,
+                });
+            
+        })
+        .catch(error => {
+                if (error.response && error.response.status === 409) {
+                    alert('Username or email already exists');
+                } else {
+                    console.error('There was an error registering the user!', error);
+                }
+            });
+    };
+
     return (
         <>
             <div className="p-10 bg-white relative">
@@ -13,13 +84,34 @@ export default function Register() {
                     </span>
                 </div>
 
-                <div className="mb-8">
+                <div className="mb-4">
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
                     <p className="text-gray-600">Join our community today</p>
                     <div className="h-1 w-16 bg-blue-600 mt-4 rounded-full"></div>
                 </div>
 
-                <form className="space-y-5">
+                <form className="space-y-2" onSubmit={handleSubmit}>
+                    <div>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                            Username
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i className="fa fa-user text-gray-400"></i>
+                            </div>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                autoComplete="username"
+                                required
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
+                                placeholder="yourusername"
+                                value={formData.username}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -32,11 +124,13 @@ export default function Register() {
                                 <input
                                     type="text"
                                     id="first-name"
-                                    name="first-name"
+                                    name="firstName"
                                     autoComplete="given-name"
                                     required
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
                                     placeholder="John"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -47,11 +141,13 @@ export default function Register() {
                             <input
                                 type="text"
                                 id="last-name"
-                                name="last-name"
+                                name="lastName"
                                 autoComplete="family-name"
                                 required
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 transition duration-150"
                                 placeholder="Doe"
+                                value={formData.lastName}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
@@ -72,6 +168,8 @@ export default function Register() {
                                 required
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
                                 placeholder="your@email.com"
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
@@ -86,12 +184,15 @@ export default function Register() {
                             </div>
                             <select
                                 id="account-type"
-                                name="account-type"
+                                name="accountType"
                                 required
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150 appearance-none"
+                                value={formData.accountType}
+                                onChange={handleChange}
                             >
-                                <option value="buyer">Buyer</option>
-                                <option value="seller">Seller</option>
+                                {roles.map(role => (
+                                    <option key={role.id} value={role.role}>{role.role}</option>
+                                ))}
                             </select>
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -117,6 +218,8 @@ export default function Register() {
                                 required
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
                                 placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
                             />
                             <button
                                 type="button"
@@ -143,11 +246,13 @@ export default function Register() {
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 id="confirm-password"
-                                name="confirm-password"
+                                name="confirmPassword"
                                 autoComplete="new-password"
                                 required
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
                                 placeholder="••••••••"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
                             />
                             <button
                                 type="button"
@@ -170,6 +275,8 @@ export default function Register() {
                             type="checkbox"
                             required
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            checked={formData.terms}
+                            onChange={handleChange}
                         />
                         <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                             I agree to the{" "}
