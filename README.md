@@ -1,5 +1,7 @@
 # React + Vite
 
+[![Deploy frontend to kubernetes cluster](https://github.com/devsteppe9/waa-final-frontend/actions/workflows/main.yaml/badge.svg)](https://github.com/devsteppe9/waa-final-frontend/actions/workflows/main.yaml)
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
