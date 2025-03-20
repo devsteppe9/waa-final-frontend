@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
+import defaultImg from "../assets/default.png";
+import axios from "axios";
+import { API_BASE_URL } from "../config";
 
-export default function EditProperty({ property, onEditProperty, onClose }) {
-    console.log(property);
-    
+export default function EditProperty({ property, onClose, fetchMyProperties }) {
   const [updatedProperty, setUpdatedProperty] = useState({
-    name: property.title || "",
-    location: property.location || "",
-    price: property.price || "",
+    name: property.name || "",
+    address: property.address || "",
+    price: property.price || 0,
     description: property.description || "",
-    totalArea: property.area || "",
-    photos: property.photos || [],
+    totalArea: property.totalArea || 0,
+    fileResources: property.fileResources || [],
   });
 
   useEffect(() => {
@@ -27,26 +28,32 @@ export default function EditProperty({ property, onEditProperty, onClose }) {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const files = e.target.files;
-    setUpdatedProperty((prev) => ({
-      ...prev,
-      photos: Array.from(files),
-    }));
-  };
-
-  const handleSubmit = () => {
-    if (updatedProperty.name && updatedProperty.location && updatedProperty.price) {
-      onEditProperty(updatedProperty); 
-      onClose();  
-      setUpdatedProperty({
-        name: "",
-        location: "",
-        price: "",
-        description: "",
-        totalArea: "",
-        photos: [],
-      });
+  const handleSubmit = async () => {
+    const payload = {
+      ...updatedProperty,
+      price: Number(updatedProperty.price),
+      totalArea: Number(updatedProperty.totalArea)
+    };
+    const res = await axios.patch(`${API_BASE_URL}/properties/${property.id}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${userDetails.token}`,
+      },
+    });
+    onClose();
+    setUpdatedProperty({
+      name: "",
+      address: "",
+      price: 0,
+      description: "",
+      totalArea: 0,
+      fileResources: [],
+    });
+    if (res.status === 200) {
+      fetchMyProperties();
+      alert("Property updated successfully");
+    } else {
+      alert("Error updating property");
     }
   };
 
@@ -73,26 +80,16 @@ export default function EditProperty({ property, onEditProperty, onClose }) {
           </button>
         </div>
         <div className="flex flex-row gap-4">
-          <div className="md:w-1/3 mb-6 md:mb-0">
-            <label
-              htmlFor="photos"
-              className="block mb-2 text-sm font-medium text-gray-700 "
-            >
-              Photos
-            </label>
-            <div className="border-2 border-dashed border-gray-200 p-6 text-center mb-4 rounded-xl bg-gray-50">
-              <input
-                type="file"
-                id="photos"
-                name="photos"
-                multiple
-                onChange={handleFileChange}
-                className="w-full text-sm text-gray-700 cursor-pointer"
-              />
-              <p className="text-gray-500 mt-2">
-                Drag and drop your photos or click to select
-              </p>
-            </div>
+          <div className="w-1/3 mr-6">
+            <img
+              src={
+                property.fileResources.length > 0
+                  ? `http://52.90.131.91/api/v1/file-resources/${property.fileResources[0].storageKey}`
+                  : defaultImg
+              }
+              alt={property.name}
+              className="w-full h-48 object-cover rounded-md"
+            />
           </div>
 
           <div className="md:w-2/3">
@@ -117,17 +114,17 @@ export default function EditProperty({ property, onEditProperty, onClose }) {
 
               <div>
                 <label
-                  htmlFor="location"
+                  htmlFor="address"
                   className="block mb-2 text-sm font-medium text-gray-700"
                 >
-                  Location
+                  Address
                 </label>
                 <input
                   type="text"
-                  id="location"
-                  name="location"
-                  placeholder="Enter location"
-                  value={updatedProperty.location}
+                  id="address"
+                  name="address"
+                  placeholder="Enter address"
+                  value={updatedProperty.address}
                   onChange={handleChange}
                   className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -141,7 +138,7 @@ export default function EditProperty({ property, onEditProperty, onClose }) {
                   Price
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="price"
                   name="price"
                   placeholder="Price"
@@ -159,7 +156,7 @@ export default function EditProperty({ property, onEditProperty, onClose }) {
                   Total Area (sqft)
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="totalArea"
                   name="totalArea"
                   placeholder="Total Area (sqft)"

@@ -8,7 +8,6 @@ export default function Owner() {
   const navigate = useNavigate();
   const [myProperties, setMyProperties] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  var userActive = true;
   const toggleAddForm = () => {
     setShowAddForm((prev) => !prev);
   };
@@ -24,10 +23,10 @@ export default function Owner() {
   };
 
   const fetchMyProperties = async () => {
-    fetch(`${API_BASE_URL}properties.php`)
+    fetch(`${API_BASE_URL}/properties`)
       .then((response) => response.json())
       .then((data) => {
-        setMyProperties(data.data);
+        setMyProperties(data);
       })
       .catch((error) => console.error("Error fetching data:", error));
   };
@@ -40,24 +39,20 @@ export default function Owner() {
     localStorage.removeItem("user");
     navigate("/");
   };
-  const addProperty = (property) => {
-    //Add property here
-    console.log(property);
-  };
+  
   return (
     <>
-      <>
         <div className="flex gap-5 mb-16">
           <div className="w-full md:w-1/4">
             <div className="sticky top-20">
               <div className="p-4 pb-0">
                 <div className="flex align-center justify-start pb-4">
                   <div className="mr-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 text-white text-xl font-bold">
-                    {getInitials(userDetails.name)}
+                  {getInitials(userDetails.firstName + ' ' + userDetails.lastName)}
                   </div>
                   <div className="">
-                    <div className="text-xl">{userDetails.name}</div>
-                    <small>{userDetails.email}</small>
+                  <div className="text-xl">{userDetails.firstName + ' ' + userDetails.lastName}</div>
+                  <small>{userDetails.email}</small>
                   </div>
                 </div>
               </div>
@@ -77,9 +72,9 @@ export default function Owner() {
               </ul>
             </div>
           </div>
-          {userActive ? (
+          {userDetails?.enabled ? (
             <div className="w-full md:w-3/4">
-              <PropertyList properties={myProperties} />
+              <PropertyList properties={myProperties} fetchMyProperties={fetchMyProperties}/>
             </div>
           ) : (
             <div className="text-center p-6 w-full">
@@ -90,7 +85,7 @@ export default function Owner() {
             </div>
           )}
 
-          {userActive && (
+          {userDetails?.enabled && (
             <button
               onClick={toggleAddForm}
               className="fixed bottom-28 right-8 bg-blue-500 text-white px-6 py-3 rounded-full shadow-lg"
@@ -100,12 +95,10 @@ export default function Owner() {
           )}
           {showAddForm && (
             <AddProperty
-              onAddProperty={addProperty}
               onClose={toggleAddForm}
             />
           )}
         </div>
-      </>
     </>
   );
 }

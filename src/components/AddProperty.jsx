@@ -1,13 +1,15 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config";
 
-export default function AddProperty({ onAddProperty, onClose }) {
+export default function AddProperty({ onClose }) {
   const [newProperty, setNewProperty] = useState({
     name: "",
-    location: "",
-    price: "",
+    address: "",
+    price: 0,
     description: "",
-    totalArea: "",
-    photos: [],
+    totalArea: 0,
+    fileResources: [],
   });
 
   useEffect(() => {
@@ -29,22 +31,41 @@ export default function AddProperty({ onAddProperty, onClose }) {
     const files = e.target.files;
     setNewProperty((prev) => ({
       ...prev,
-      photos: Array.from(files),
+      fileResources: Array.from(files),
     }));
   };
 
-  const handleSubmit = () => {
-    if (newProperty.name && newProperty.location && newProperty.price) {
-      onAddProperty(newProperty);
-      onClose();
-      setNewProperty({
-        name: "",
-        location: "",
-        price: "",
-        description: "",
-        totalArea: "",
-        photos: [],
-      });
+  const handleSubmit = async () => {
+    try{
+      const res = await axios.post(`${API_BASE_URL}/properties`, newProperty, {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });      
+      const createdProperty = res?.data;
+      if(newProperty?.fileResources.length > 0){
+        const formData = new FormData();
+        newProperty.fileResources.forEach((file) => {
+          formData.append("files", file); 
+        });
+        await axios.post(`${API_BASE_URL}/properties/${createdProperty?.id}/images`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", 
+          },
+        });
+        onClose();
+        setNewProperty({
+          name: "",
+          address: "",
+          price: 0,
+          description: "",
+          totalArea: 0,
+          fileResources: [],
+        });
+        alert("Property created and images uploaded successfully!");
+      }
+    }catch(err){
+      console.log(err);
     }
   };
 
@@ -73,7 +94,7 @@ export default function AddProperty({ onAddProperty, onClose }) {
         <div className="flex flex-row gap-4">
           <div className="md:w-1/3 mb-6 md:mb-0">
             <label
-              htmlFor="photos"
+              htmlFor="fileResources"
               className="block mb-2 text-sm font-medium text-gray-700 "
             >
               Photos
@@ -81,8 +102,8 @@ export default function AddProperty({ onAddProperty, onClose }) {
             <div className="border-2 border-dashed border-gray-200 p-6 text-center mb-4 rounded-xl bg-gray-50">
               <input
                 type="file"
-                id="photos"
-                name="photos"
+                id="fileResources"
+                name="fileResources"
                 multiple
                 onChange={handleFileChange}
                 className="w-full text-sm text-gray-700 cursor-pointer"
@@ -109,24 +130,26 @@ export default function AddProperty({ onAddProperty, onClose }) {
                   placeholder="Enter property name"
                   value={newProperty.name}
                   onChange={handleChange}
+                  required
                   className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
                 <label
-                  htmlFor="location"
+                  htmlFor="address"
                   className="block mb-2 text-sm font-medium text-gray-700"
                 >
-                  Location
+                  Address
                 </label>
                 <input
                   type="text"
-                  id="location"
-                  name="location"
-                  placeholder="Enter location"
-                  value={newProperty.location}
+                  id="address"
+                  name="address"
+                  placeholder="Enter address"
+                  value={newProperty.address}
                   onChange={handleChange}
+                  required
                   className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -145,6 +168,7 @@ export default function AddProperty({ onAddProperty, onClose }) {
                   placeholder="Price"
                   value={newProperty.price}
                   onChange={handleChange}
+                  required
                   className="w-full p-2 border border-gray-300 rounded"
                 />
               </div>
