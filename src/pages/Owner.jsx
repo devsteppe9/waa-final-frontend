@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config";
 import PropertyList from "../components/PropertyList";
 import AddProperty from "../components/AddProperty";
+import { apiRequest } from "../request";
 
 export default function Owner() {
   const navigate = useNavigate();
@@ -21,14 +22,9 @@ export default function Owner() {
     }
     return words[0][0].toUpperCase() + words[1][0].toUpperCase();
   };
-
   const fetchMyProperties = async () => {
-    fetch(`${API_BASE_URL}/properties`)
-      .then((response) => response.json())
-      .then((data) => {
-        setMyProperties(data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
+    setMyProperties(data);
   };
   useEffect(() => {
     fetchMyProperties();
@@ -95,6 +91,7 @@ export default function Owner() {
           )}
           {showAddForm && (
             <AddProperty
+            fetchMyProperties = {fetchMyProperties}
               onClose={toggleAddForm}
             />
           )}
