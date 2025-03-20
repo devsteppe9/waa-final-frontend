@@ -3,10 +3,12 @@ import Property from '../components/Property'
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { apiRequest } from '../request';
 
 
 export default function Customer() {
     const navigate = useNavigate();
+    const [currentTab, setCurrentTab] = useState('properties');
     const [availableProperties, setAvailableProperties] = useState([]);
     const [offerHistory, setOfferHistory] = useState([]);
     const [savedProperties, setSavedProperties] = useState([]);
@@ -24,42 +26,28 @@ export default function Customer() {
     };
 
     const fetchOfferHistory = async () => {
-        /*fetch(`${API_BASE_URL}offers`)
-            .then((response) => response.json())
-            .then((data) => {
-                setOfferHistory(data.data);
-                setAvailableProperties([]);
-                setSavedProperties([]);
-            })
-            .catch((error) => console.error("Error fetching data:", error));*/
+        const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
+        setOfferHistory(data);
+        setCurrentTab('offers');
     }
     const fetchSavedProperties = async () => {
-        fetch(`${API_BASE_URL}/properties`)
-            .then((response) => response.json())
-            .then((data) => {
-                setSavedProperties(data.data);
-                setAvailableProperties([]);
-                setOfferHistory([]);
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+        const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
+        setSavedProperties(data);
+        setCurrentTab('saved');
     }
     const fetchAvailableProperties = async () => {
-        fetch(`${API_BASE_URL}/properties`)
-            .then((response) => response.json())
-            .then((data) => {
-                setAvailableProperties(data.data);
-                setOfferHistory([]);
-                setSavedProperties([]);
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+        const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
+        setAvailableProperties(data);
+        setCurrentTab('properties');
     }
     useEffect(() => {
         fetchAvailableProperties();
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("role");
         localStorage.removeItem("user");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         navigate("/");
     };
 
@@ -98,24 +86,29 @@ export default function Customer() {
 
 
                     </div>
-                    <div className="w-full md:w-3/4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
-                            {availableProperties &&
-                                availableProperties.map((property) => (
-                                    <Property property={property} key={`property-${property.id}`} />
-                                )
-                                )}
-                            {offerHistory &&
 
-                                offerHistory.map((offer) => (
-                                    <Offer key={`offer-${offer.id}`} />
-                                ))}
-                            {savedProperties &&
-                                savedProperties.map((property) => (
-                                    <Property property={property} key={`saved-${property.id}`} />
-                                ))}
+                    {currentTab === 'properties' &&
+                        <div className="w-full md:w-3/4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
+                                {availableProperties &&
+                                    availableProperties.map((property) => (
+                                        <Property property={property} key={`property-${property.id}`} />
+                                    )
+                                    )}
+                            </div>
                         </div>
-                    </div>
+                    }
+                    {currentTab === 'offers' &&
+                        offerHistory.map((offer) => (
+                            <Offer key={`offer-${offer.id}`} />
+                        ))
+                    }
+                    {currentTab === 'saved' &&
+                        savedProperties.map((property) => (
+                            <Property property={property} key={`saved-${property.id}`} />
+                        ))
+                    }
+
                 </div >
 
             </>
