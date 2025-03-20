@@ -34,6 +34,7 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       price: Number(updatedProperty.price),
       totalArea: Number(updatedProperty.totalArea)
     };
+
     const res = await axios.patch(`${API_BASE_URL}/properties/${property.id}`, payload, {
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +51,7 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       fileResources: [],
     });
     if (res.status === 200) {
-      fetchMyProperties();
+      // fetchMyProperties();
       alert("Property updated successfully");
     } else {
       alert("Error updating property");
@@ -62,6 +63,7 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       onClose();
     }
   };
+// console.log(property);
 
   return (
     <div
@@ -83,11 +85,11 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
           <div className="w-1/3 mr-6">
             <img
               src={
-                property.fileResources.length > 0
-                  ? `http://52.90.131.91/api/v1/file-resources/${property.fileResources[0].storageKey}`
+                property?.fileResources?.length > 0
+                  ? `${API_BASE_URL}/file-resources/${property?.fileResources[0]?.storageKey}`
                   : defaultImg
               }
-              alt={property.name}
+              alt={property?.name}
               className="w-full h-48 object-cover rounded-md"
             />
           </div>

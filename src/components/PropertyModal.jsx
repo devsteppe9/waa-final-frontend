@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Status from "./Status";
 import defaultImg from "../assets/default.png";
+import { API_BASE_URL } from "../config";
 
 export default function PropertyModal({ property, onClose }) {
     const [selectedOffer, setSelectedOffer] = useState(null);
@@ -43,6 +44,8 @@ export default function PropertyModal({ property, onClose }) {
           onClose();
         }
       };
+      console.log(property);
+      
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={handleOverlayClick}>
             <div className="bg-white rounded-lg w-11/12 md:w-2/3 lg:w-2/3 xl:w-1/2 p-6 shadow-lg relative max-h-[90vh] overflow-y-auto">
@@ -53,38 +56,59 @@ export default function PropertyModal({ property, onClose }) {
                     <i className="fa-solid fa-xmark text-2xl"></i>
                 </button>
 
-                <div className="flex mb-6">
-
-                    <div className="w-1/3 mr-6">
-                        <img
-                            src={property.fileResources.length > 0 ? `http://52.90.131.91/api/v1/file-resources/${property.fileResources[0].storageKey}` : defaultImg}
-                            alt={property.name}
-                            className="w-full h-48 object-cover rounded-md"
-                        />
+                <div className="mb-6">
+                    <div className="flex justify-between items-start mb-4 mr-8">
+                        <div>
+                            <h3 className="text-2xl font-bold text-gray-800 mb-1">{property.name}</h3>
+                            <p className="text-gray-600 text-sm flex items-center">
+                                <i className="fa-solid fa-location-dot mr-2"></i>
+                                {property.address}
+                            </p>
+                        </div>
+                        <Status status={property.status} />
                     </div>
 
-                    <div className="w-2/3">
-                        <div className="mb-4">
-                            <Status status="Available" />
-                            <h3 className="text-xl font-semibold">{property.name}</h3>
-                            <span className="text-sm text-gray-500">{property.address}</span>
+                    <div className="grid grid-cols-2 gap-6 mb-6 bg-gray-50 p-4 rounded-lg">
+                        <div>
+                            <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">Price</p>
+                            <p className="text-2xl font-bold text-blue-600">${property.price?.toLocaleString()}</p>
                         </div>
-                        <div className="mb-4">
-                            <span className="text-blue-600 font-bold text-lg">${property.price}</span>
+                        <div>
+                            <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">Total Area</p>
+                            <p className="text-2xl font-bold text-gray-800">{property.totalArea?.toLocaleString()} sqft</p>
                         </div>
-                        <div className="mb-4 text-sm text-gray-500">
-                            <p>{property.description} description here</p>
-                        </div>
-                        <div className="flex justify-between text-sm text-gray-500 mb-4">
-                            <div>
-                                <span>{property.offers.length} offers</span>
-                            </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <h4 className="text-gray-700 font-semibold text-lg mb-2">Description</h4>
+                        <p className="text-gray-600 leading-relaxed">{property.description}</p>
+                    </div>
+
+                    <div className="mb-6">
+                        <h4 className="text-gray-700 font-semibold text-lg mb-3">Property Images</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {property.fileResources?.length > 0 ? (
+                                property.fileResources.map((file, index) => (
+                                    <img
+                                        key={index}
+                                        src={`${API_BASE_URL}/file-resources/${file.storageKey}`}
+                                        alt={`${property.name} - ${index + 1}`}
+                                        className="w-full h-48 object-cover rounded-md"
+                                    />
+                                ))
+                            ) : (
+                                <img
+                                    src={defaultImg}
+                                    alt={property.name}
+                                    className="w-full h-48 object-cover rounded-md"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-6">
-                    <h4 className="text-lg font-semibold mb-4">Offers</h4>
+                    <h4 className="text-gray-700 font-semibold text-lg mb-4">Offers</h4>
                     {/* {property.offers.map((offer) => ( */}
                     {offers.map((offer) => (
 
