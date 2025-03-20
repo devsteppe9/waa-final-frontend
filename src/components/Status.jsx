@@ -2,9 +2,11 @@ import React from "react";
 
 const Status = ({ status }) => {
   const statusStyles = {
-    Available: "text-green-600",
-    Pending: "text-yellow-600",
-    Contingent: "text-gray-600",
+    AVAILABLE: "text-green-600",
+    PENDING: "text-yellow-600",
+    CONTINGENT: "text-gray-600",
+    SOLD: "text-red-600",
+    DEFAULT: "text-gray-600"
   };
 
   return (

@@ -1,48 +1,87 @@
 import { useEffect, useState } from "react";
 import Status from "./Status";
 import defaultImg from "../assets/default.png";
+import { API_BASE_URL } from "../config";
+import { apiRequest } from '../request'
 
 export default function PropertyModal({ property, onClose }) {
     const [selectedOffer, setSelectedOffer] = useState(null);
+    const [offers, setOffers] = useState(property.offers || []);    
 
-    const handleAcceptOffer = (offerId) => {
-        setSelectedOffer(offerId);
+    const handleAcceptOffer = async (offerId) => {
+        try {
+            await apiRequest(`${API_BASE_URL}/offers/${offerId}`,"PATCH", { status: "ACCEPTED" });
+            setOffers((prevOffers) =>
+                prevOffers.map((offer) =>
+                    offer.id === offerId ? { ...offer, status: "ACCEPTED" } : offer
+                )
+            );
+            setSelectedOffer(offerId);
+        } catch (error) {
+            console.error("There was an error rejecting the offer!", error);
+        }
+        
     };
 
-    const handleRejectOffer = () => {
-        setSelectedOffer(null);
+    const handleRejectOffer = async (offerId) => {
+        try {
+            await apiRequest(`${API_BASE_URL}/offers/${offerId}`,"PATCH", { status: "REJECTED" });
+            setOffers((prevOffers) =>
+                prevOffers.map((offer) =>
+                    offer.id === offerId ? { ...offer, status: "REJECTED" } : offer
+                )
+            );
+            setSelectedOffer(null);
+        } catch (error) {
+            console.error("There was an error rejecting the offer!", error);
+        }
+    };
+
+    const handleContingent = async () => {
+        try {
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" });
+            property.status = "CONTINGENT";
+        } catch (error) {
+            console.error("There was an error changing the property status!", error);
+        }
+    };
+
+       const handleMarkAsSold = async () => {
+        try {
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" });
+            property.status = "SOLD";
+        } catch (error) {
+            console.error("There was an error changing the property status!", error);
+        }
     };
     useEffect(() => {
         document.body.style.overflow = "hidden";
-        return () => {
-          document.body.style.overflow = "unset";
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
         };
-      }, []);
-    const offers = [
-        {
-            id: 1,
-            username: "JohnDoe",
-            message: "This is my best offer. I love this house!",
-            offerPrice: 340000,
-        },
-        {
-            id: 2,
-            username: "JaneSmith",
-            message: "I'd love to make an offer on this property. Looking forward to hearing back!",
-            offerPrice: 345000,
-        },
-        {
-            id: 3,
-            username: "MikeJohnson",
-            message: "I think this is the right house for me. My family is excited!",
-            offerPrice: 350000,
-        },
-    ];
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = "unset";
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]);
+    
     const handleOverlayClick = (e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
-      };
+    };
+    
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={handleOverlayClick}>
             <div className="bg-white rounded-lg w-11/12 md:w-2/3 lg:w-2/3 xl:w-1/2 p-6 shadow-lg relative max-h-[90vh] overflow-y-auto">
@@ -65,12 +104,12 @@ export default function PropertyModal({ property, onClose }) {
 
                     <div className="w-2/3">
                         <div className="mb-4">
-                            <Status status="Available" />
+                            <Status status={property.status} />
                             <h3 className="text-xl font-semibold">{property.name}</h3>
                             <span className="text-sm text-gray-500">{property.address}</span>
                         </div>
                         <div className="mb-4">
-                            <span className="text-blue-600 font-bold text-lg">${property.price}</span>
+                            <span className="text-blue-600 font-bold text-lg">{formatCurrency(property.price)}</span>
                         </div>
                         <div className="mb-4 text-sm text-gray-500">
                             <p>{property.description} description here</p>
@@ -80,6 +119,23 @@ export default function PropertyModal({ property, onClose }) {
                                 <span>{property.offers.length} offers</span>
                             </div>
                         </div>
+                        {property.status === "PENDING" && (
+                            <button
+                                onClick={handleContingent}
+                                className="bg-orange-500 text-white px-4 py-2 rounded"
+                            >
+                                Contingent
+                            </button>
+                        )}
+
+                        {property.status === "CONTINGENT" && (
+                            <button
+                                onClick={handleMarkAsSold}
+                                className="bg-red-500 text-white px-4 py-2 rounded"
+                            >
+                                Mark as sold
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -87,7 +143,6 @@ export default function PropertyModal({ property, onClose }) {
                     <h4 className="text-lg font-semibold mb-4">Offers</h4>
                     {/* {property.offers.map((offer) => ( */}
                     {offers.map((offer) => (
-
                         <div
                             key={offer.id}
                             className={`p-4 mb-4 border rounded-lg ${
@@ -96,10 +151,10 @@ export default function PropertyModal({ property, onClose }) {
                         >
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="font-semibold">{offer.username}</p>
+                                    <p className="font-semibold">{offer.user.username}</p>
                                     <p className="text-sm text-gray-500">{offer.message}</p>
                                 </div>
-                                <div className="text-lg font-bold text-blue-600">${offer.offerPrice}</div>
+                                <div className="text-lg font-bold text-blue-600">{formatCurrency(offer.offerAmount)}</div>
                             </div>
                             <div className="mt-2 flex justify-between text-sm text-gray-500">
                                 <div>
@@ -116,12 +171,14 @@ export default function PropertyModal({ property, onClose }) {
                                     </span>
                                 </div>
                                 <div>
-                                    <button
-                                        onClick={() => handleAcceptOffer(offer.id)}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                                    >
-                                        Accept
-                                    </button>
+                                    {offer.status === "OPEN" && (
+                                        <button
+                                            onClick={() => handleAcceptOffer(offer.id)}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                                        >
+                                            Accept
+                                        </button>
+                                    )}
                                     <button
                                         onClick={handleRejectOffer}
                                         className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
