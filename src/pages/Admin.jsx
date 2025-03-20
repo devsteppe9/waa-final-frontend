@@ -186,7 +186,14 @@ export default function Admin() {
                         <ul>
                             {properties.map((property) => (
                                 <li className="bg-white p-3 flex mb-4">
-                                    <img width="200" className="border border-solid border-gray-300" src={`${API_BASE_URL}/file-resources/${property.fileResources[0]?.storageKey}`} />
+                                    <img
+                                        width="200"
+                                        className="border border-solid border-gray-300"
+                                        src={property.fileResources?.length > 0
+                                            ? `${API_BASE_URL}/file-resources/${property.fileResources[0].storageKey}`
+                                            : "/https://sportsguff.com/assets/images/lazy.png"}
+                                        alt="Property Image"
+                                    />
 
                                     <div className="flex-1 ml-3">
                                         <strong className="mb-6">{property.name}</strong>

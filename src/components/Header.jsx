@@ -20,6 +20,16 @@ export default function Header() {
                             <span className="text-white">Property</span>
                         </span>
                     </div>
+                    <div className="flex md:order-2">
+                        <Link
+                            to="/login"
+                            className="text-white border border-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                            {localStorage.getItem('user')
+                                ? JSON.parse(localStorage.getItem('user')).firstName  // Corrected here to access the 'name' after parsing
+                                : "Login"}
+                        </Link>
+
+                    </div>
                     {/*<div className="flex md:order-2">
                         {role && (
                             <span
