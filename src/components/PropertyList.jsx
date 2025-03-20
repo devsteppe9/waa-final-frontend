@@ -11,7 +11,7 @@ import Status from "./Status";
 export default function PropertyList({ properties, fetchMyProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [search, setSearch] = useState("");
-  const [filteredProperties, setFilteredProperties] = useState(properties);
+  const [filteredProperties, setFilteredProperties] = useState([]);  // Initialize as empty array
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -30,7 +30,12 @@ export default function PropertyList({ properties, fetchMyProperties }) {
     setIsEditOpen(true);
   };
   useEffect(() => {
-    const filtered = properties?.length > 0 && properties?.filter((property) =>
+    if (!properties) {
+      setFilteredProperties([]);
+      return;
+    }
+
+    const filtered = properties?.filter((property) =>
       [property.name, property.address, property.status, property.price?.toString()]
         .some(field => field?.toLowerCase().includes(search.toLowerCase()))
     );
@@ -176,7 +181,7 @@ export default function PropertyList({ properties, fetchMyProperties }) {
         <img
           src={
             row.fileResources?.length > 0
-              ? `${API_BASE_URL}/file-resources/${row.fileResources[0].storageKey}`
+              ? `${API_BASE_URL}/file-resources/${row?.fileResources[0]?.storageKey}`
               : defaultImg
           }
           alt={row.name}
