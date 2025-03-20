@@ -1,7 +1,15 @@
+import axios from "axios";
 import React from "react";
+import { API_BASE_URL } from "../config";
 
-export default function DeleteModal({ isOpen, onClose, onConfirmDelete, property }) {
-  if (!isOpen) return null;
+export default function DeleteModal({onClose, fetchMyProperties, property }) {
+  const handleDelete = async (propertyId) => {
+    await axios.delete(`${API_BASE_URL}/properties/${propertyId}`);
+    alert("Property deleted successfully");
+    onClose();
+    fetchMyProperties();
+
+  }
 
   return (
     <div
@@ -13,10 +21,7 @@ export default function DeleteModal({ isOpen, onClose, onConfirmDelete, property
         onClick={(e) => e.stopPropagation()} 
       >
         <h3 className="text-lg font-semibold mb-4 text-center">Are you sure you want to delete this property?</h3>
-        <div className="mb-4">
-          <p><strong>{property?.title}</strong></p>
-          <p>{property?.location}</p>
-        </div>
+       
         <div className="flex justify-between mt-4">
           <button
             onClick={onClose}
@@ -26,8 +31,7 @@ export default function DeleteModal({ isOpen, onClose, onConfirmDelete, property
           </button>
           <button
             onClick={() => {
-              onConfirmDelete(property.id); 
-              onClose(); 
+              handleDelete(property?.id); 
             }}
             className="bg-red-500 text-white px-6 py-2 rounded"
           >

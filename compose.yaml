@@ -9,9 +9,9 @@
 # https://github.com/docker/awesome-compose
 services:
   frontend:
-    build:
-      context: .
     environment:
       NODE_ENV: production
+    build:
+      context: .
     ports:
       - 8082:80
