@@ -8,13 +8,20 @@ const Status = ({ status }) => {
     SOLD: "text-red-600",
     DEFAULT: "text-gray-600"
   };
+  const handleText = (status) => {
+    if (!status) return "Unavailable";
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
 
   return (
-    <span className={`text-sm font-semibold ${statusStyles[status] || "text-gray-600"}`}>
-      {status}
+    <span
+      className={`px-2 py-1 rounded-md text-white text-xs ${
+        statusStyles[status] || "bg-gray-400"
+      }`}
+    >
+      {handleText(status) || "Unavailable"}
     </span>
   );
 };
 
 export default Status;
-

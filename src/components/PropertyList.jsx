@@ -7,6 +7,7 @@ import DeleteModal from "./DeleteModal";
 import { API_BASE_URL } from "../config";
 import defaultImg from "../assets/default.png";
 import axios from "axios";
+import Status from "./Status";
 
 export default function PropertyList({ properties, fetchMyProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -32,9 +33,8 @@ export default function PropertyList({ properties, fetchMyProperties }) {
       name: "Image",
       selector: (row) => (
         <img
-          // src={row.fileResources.length > 0 ? `${API_BASE_URL}/file-resources/${row.fileResources[0].storageKey}` : defaultImg}
-          src={row.fileResources.length > 0 ? `http://52.90.131.91/api/v1/file-resources/${row.fileResources[0].storageKey}` : defaultImg}
-          alt={row.title}
+          src={row.fileResources?.length > 0 ? `${API_BASE_URL}/file-resources/${row.fileResources[0].storageKey}` : defaultImg}
+          alt={row.name}
           className="w-16 h-16 object-cover rounded-md my-2"
         />
       ),
@@ -51,29 +51,18 @@ export default function PropertyList({ properties, fetchMyProperties }) {
       sortable: true,
     },
     {
-      name: "Offer status",
+      name: "Status",
       selector: (row) => row.status,
       sortable: true,
       cell: (row) => (
-        // <span
-        //   className={`px-2 py-1 rounded-md text-white text-xs ${
-        //     row.status === "Available" ? "bg-green-500" : "bg-red-500"
-        //   }`}
-        // >
-        //   {row.status || "Available"}
-        // </span>
-        <span
-        className={`px-2 py-1 rounded-md text-white text-xs bg-green-500`}
-      >
-        {"Available"}
-      </span>
+        <Status status={row.status} />
       ),
     },
     {
       name: "Offers",
-      selector: (row) => row.offers.length,
+      selector: (row) => row?.offers?.length,
       sortable: true,
-      cell: (row) => `${row.offers.length} offers`,
+      cell: (row) => `${row?.offers?.length || 0} offers`,
     },
     {
       name: "Price",
