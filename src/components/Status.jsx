@@ -10,7 +10,7 @@ const Status = ({ status }) => {
   };
   const handleText = (status) => {
     if (!status) return "Unavailable";
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    return status?.charAt(0)?.toUpperCase() + status?.slice(1)?.toLowerCase();
   };
 
   return (
