@@ -30,14 +30,18 @@ export default function PropertyList({ properties, fetchMyProperties }) {
     setIsEditOpen(true);
   };
   useEffect(() => {
-    if (!properties) {
+    if (!properties || !Array.isArray(properties)) {
       setFilteredProperties([]);
       return;
     }
 
-    const filtered = properties?.filter((property) =>
-      [property.name, property.address, property.status, property.price?.toString()]
-        .some(field => field?.toLowerCase().includes(search.toLowerCase()))
+    const filtered = properties.filter((property) =>
+      property && [
+        property.name,
+        property.address,
+        property.status,
+        property.price?.toString()
+      ].some(field => field?.toLowerCase().includes(search.toLowerCase()))
     );
 
     setFilteredProperties(filtered);
