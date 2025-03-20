@@ -1,15 +1,26 @@
-import axios from "axios";
 import React from "react";
 import { API_BASE_URL } from "../config";
+import { apiRequest } from "../request";
 
 export default function DeleteModal({onClose, fetchMyProperties, property }) {
-  const handleDelete = async (propertyId) => {
-    await axios.delete(`${API_BASE_URL}/properties/${propertyId}`);
-    alert("Property deleted successfully");
-    onClose();
-    fetchMyProperties();
-
-  }
+  const handleDelete = async () => {
+    try {
+      await apiRequest(
+        `${API_BASE_URL}/properties/${property?.id}`,
+        "DELETE",
+        null,
+        {},
+        { "Accept": "*/*" } 
+      );
+      
+      alert("Property deleted successfully");
+      await fetchMyProperties();
+      onClose();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete property");
+    }
+  };
 
   return (
     <div
@@ -30,9 +41,7 @@ export default function DeleteModal({onClose, fetchMyProperties, property }) {
             Cancel
           </button>
           <button
-            onClick={() => {
-              handleDelete(property?.id); 
-            }}
+            onClick={handleDelete}
             className="bg-red-500 text-white px-6 py-2 rounded"
           >
             Delete

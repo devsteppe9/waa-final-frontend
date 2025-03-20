@@ -1,8 +1,9 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../config";
+import { apiRequest } from "../request";
+import axios from "axios";
 
-export default function AddProperty({ onClose }) {
+export default function AddProperty({ onClose, fetchMyProperties  }) {
   const [newProperty, setNewProperty] = useState({
     name: "",
     address: "",
@@ -11,7 +12,7 @@ export default function AddProperty({ onClose }) {
     totalArea: 0,
     fileResources: [],
   });
-
+  const accessToken = localStorage.getItem("access_token");
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -36,23 +37,35 @@ export default function AddProperty({ onClose }) {
   };
 
   const handleSubmit = async () => {
-    try{
-      const res = await axios.post(`${API_BASE_URL}/properties`, newProperty, {
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });      
-      const createdProperty = res?.data;
-      if(newProperty?.fileResources.length > 0){
+    try {
+      const res = await apiRequest(
+        `${API_BASE_URL}/properties`,
+        "POST",
+        newProperty
+      );
+      const createdProperty = res;
+      if (newProperty?.fileResources.length > 0) {
         const formData = new FormData();
         newProperty.fileResources.forEach((file) => {
-          formData.append("files", file); 
+          formData.append("files", file);
         });
         await axios.post(`${API_BASE_URL}/properties/${createdProperty?.id}/images`, formData, {
           headers: {
             "Content-Type": "multipart/form-data", 
+            Authorization: `Bearer ${accessToken}`,
           },
         });
+        await fetchMyProperties();
+
+        // const response = await apiRequest(
+        //   `${API_BASE_URL}/properties/${createdProperty?.id}/images`, 
+        //   'POST', 
+        //   formData,
+        //   null,
+        //   { "Content-Type": "multipart/form-data" },
+        //   false
+        // );
+        // console.log(response);
         onClose();
         setNewProperty({
           name: "",
@@ -62,9 +75,10 @@ export default function AddProperty({ onClose }) {
           totalArea: 0,
           fileResources: [],
         });
+    
         alert("Property created and images uploaded successfully!");
       }
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   };
