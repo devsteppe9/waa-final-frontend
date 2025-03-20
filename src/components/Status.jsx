@@ -16,7 +16,7 @@ const Status = ({ status }) => {
   return (
     <span
       className={`px-2 py-1 rounded-md text-white text-xs ${
-        statusStyles[status] || "bg-gray-400"
+        statusStyles[status] || statusStyles.DEFAULT
       }`}
     >
       {handleText(status) || "Unavailable"}
