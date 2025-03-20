@@ -24,7 +24,7 @@ export default function Owner() {
   };
 
   const fetchMyProperties = async () => {
-    fetch(`${API_BASE_URL}properties.php`)
+    fetch(`${API_BASE_URL}/properties`)
       .then((response) => response.json())
       .then((data) => {
         setMyProperties(data.data);
