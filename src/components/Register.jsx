@@ -21,6 +21,16 @@ export default function Register() {
         axios.get(`${API_BASE_URL}/system/roles`)
             .then(response => {
                 setRoles(response.data);
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    username: '',
+                    email: '',
+                    accountType: response.data[0].role, // Set default role
+                    password: '',
+                    confirmPassword: '',
+                    terms: false
+                });
             })
             .catch(error => {
                 console.error('There was an error fetching the roles!', error);
@@ -59,7 +69,7 @@ export default function Register() {
                     lastName: '',
                     username: '',
                     email: '',
-                    accountType: '',
+                    accountType: roles[0].role, // Reset to default role    
                     password: '',
                     confirmPassword: '',
                     terms: false,
