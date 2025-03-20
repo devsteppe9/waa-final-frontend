@@ -30,7 +30,7 @@ export default function PropertyList({ properties, fetchMyProperties }) {
     setIsEditOpen(true);
   };
   useEffect(() => {
-    const filtered = properties.filter((property) =>
+    const filtered = properties?.length > 0 && properties?.filter((property) =>
       [property.name, property.address, property.status, property.price?.toString()]
         .some(field => field?.toLowerCase().includes(search.toLowerCase()))
     );
