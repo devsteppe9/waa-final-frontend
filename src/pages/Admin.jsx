@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config";
+import { apiRequest } from '../request'
 
 export default function Admin() {
     const navigate = useNavigate();
+    const [currentTab, setCurrentTab] = useState("users");
     const [data, setData] = useState([]);
     const [properties, setProperties] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -21,28 +23,21 @@ export default function Admin() {
         return words[0][0].toUpperCase() + words[1][0].toUpperCase();
     };
     const fetchUsers = async () => {
-        fetch(`${API_BASE_URL}/users`)
-            .then((response) => response.json())
-            .then((data) => {
-                setData(data);
-                setFilteredData(data);
-                setProperties([]);
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+        const data = await apiRequest(`${API_BASE_URL}/users`);
+        setData(data);
+        setFilteredData(data);
+        setCurrentTab('users');
+
     }
     useEffect(() => {
         fetchUsers();
     }, []);
 
     const fetchProperties = async () => {
-        fetch(`${API_BASE_URL}/properties`)
-            .then((response) => response.json())
-            .then((data) => {
-                const firstNProperties = data.slice(0, 10);
-                setProperties(firstNProperties);
-                setFilteredData([]);
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+        const data = await apiRequest(`${API_BASE_URL}/properties`);
+        const firstNProperties = data.slice(0, 10);
+        setProperties(firstNProperties);
+        setCurrentTab('properties');
 
     }
 
@@ -65,7 +60,7 @@ export default function Admin() {
             redirect: "follow"
         };
 
-        fetch(`${API_BASE_URL}/users/${id}/status?enabled=${new_status}`, requestOptions);
+        apiRequest(`${API_BASE_URL}/users/${id}/status?enabled=${new_status}`, 'PATCH');
 
         setData(prevData =>
             prevData.map(user =>
@@ -101,6 +96,11 @@ export default function Admin() {
         {
             name: "Role",
             selector: (row) => row.role,
+            sortable: true,
+        },
+        {
+            name: "Status",
+            selector: (row) => row.enabled === true ? "Active" : "Inactive",
             sortable: true,
         },
         {
@@ -157,7 +157,7 @@ export default function Admin() {
 
                 </div>
 
-                {filteredData.length > 0 &&
+                {currentTab === 'users' &&
                     <div className="w-full md:w-3/4">
                         <h2 className="text-xl text-center font-semibold mb-4">Users</h2>
                         <input
@@ -180,16 +180,18 @@ export default function Admin() {
                         />
                     </div>
                 }
-                {properties.length > 0 &&
+                {currentTab === 'properties' &&
                     <div className="w-full md:w-3/4">
                         <h2 className="text-xl text-center font-semibold mb-4">Properties</h2>
                         <ul>
                             {properties.map((property) => (
-                                <li className="bg-white p-3 flex">
-                                    <img width="200" src="https://static8.depositphotos.com/1007959/943/i/450/depositphotos_9433517-stock-photo-house-for-sale-real-estate.jpg" />
+                                <li className="bg-white p-3 flex mb-4">
+                                    <img width="200" className="border border-solid border-gray-300" src={`${API_BASE_URL}/file-resources/${property.fileResources[0]?.storageKey}`} />
+
                                     <div className="flex-1 ml-3">
                                         <strong className="mb-6">{property.name}</strong>
-                                        <p>{property.description}</p>
+                                        <div className="mt-2">${property.price}</div>
+                                        <p className="mt-4">{property.description}</p>
                                     </div>
                                 </li>
                             ))}
