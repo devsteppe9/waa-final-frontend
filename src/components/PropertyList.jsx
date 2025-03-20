@@ -4,8 +4,11 @@ import PropertyModal from "./PropertyModal";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import EditProperty from "./EditProperty";
 import DeleteModal from "./DeleteModal";
+import { API_BASE_URL } from "../config";
+import defaultImg from "../assets/default.png";
+import axios from "axios";
 
-export default function PropertyList({ properties }) {
+export default function PropertyList({ properties, fetchMyProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -24,17 +27,13 @@ export default function PropertyList({ properties }) {
     setIsEditOpen(true);
   };
 
-  const handleDelete = (propertyId) => {
-    setIsDeleteOpen(true);
-    console.log("Deleting property with ID:", propertyId);
-  };
-
   const columns = [
     {
       name: "Image",
       selector: (row) => (
         <img
-          src={row.image}
+          // src={row.fileResources.length > 0 ? `${API_BASE_URL}/file-resources/${row.fileResources[0].storageKey}` : defaultImg}
+          src={row.fileResources.length > 0 ? `http://52.90.131.91/api/v1/file-resources/${row.fileResources[0].storageKey}` : defaultImg}
           alt={row.title}
           className="w-16 h-16 object-cover rounded-md my-2"
         />
@@ -42,39 +41,43 @@ export default function PropertyList({ properties }) {
       width: "80px",
     },
     {
-      name: "Title",
-      selector: (row) => row.title,
-      sortable: true,
-      width: "180px",
-    },
-    {
-      name: "Location",
-      selector: (row) => row.location,
+      name: "Property name",
+      selector: (row) => row.name,
       sortable: true,
     },
     {
-      name: "Status",
+      name: "Address",
+      selector: (row) => row.address,
+      sortable: true,
+    },
+    {
+      name: "Offer status",
       selector: (row) => row.status,
       sortable: true,
       cell: (row) => (
+        // <span
+        //   className={`px-2 py-1 rounded-md text-white text-xs ${
+        //     row.status === "Available" ? "bg-green-500" : "bg-red-500"
+        //   }`}
+        // >
+        //   {row.status || "Available"}
+        // </span>
         <span
-          className={`px-2 py-1 rounded-md text-white text-xs ${
-            row.status === "Available" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {row.status || "Available"}
-        </span>
+        className={`px-2 py-1 rounded-md text-white text-xs bg-green-500`}
+      >
+        {"Available"}
+      </span>
       ),
     },
     {
       name: "Offers",
-      selector: (row) => row.offerCount,
+      selector: (row) => row.offers.length,
       sortable: true,
-      cell: (row) => `${row.offerCount || 0} offers`,
+      cell: (row) => `${row.offers.length} offers`,
     },
     {
       name: "Price",
-      selector: (row) => `$${row.price}`,
+      selector: (row) => `$${row.price || 0}`,
       sortable: true,
     },
     {
@@ -104,7 +107,7 @@ export default function PropertyList({ properties }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(row.id);
+              setIsDeleteOpen(true);
             }}
             className="text-red-500 hover:text-red-600 text-lg"
             title="Delete"
@@ -136,10 +139,7 @@ export default function PropertyList({ properties }) {
       {isEditOpen && (
         <EditProperty
           property={selectedProperty}
-          onEditProperty={() => {
-            setIsEditOpen(false);
-            setIsViewOpen(true);
-          }}
+          fetchMyProperties = {fetchMyProperties}
           onClose={() => {
             setIsEditOpen(false);
             setIsViewOpen(false);
@@ -148,10 +148,9 @@ export default function PropertyList({ properties }) {
       )}
       {isDeleteOpen && (
         <DeleteModal
-          isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
-          onConfirmDelete={handleDelete}
           property={selectedProperty}
+          fetchMyProperties = {fetchMyProperties}
         />
       )}
     </div>

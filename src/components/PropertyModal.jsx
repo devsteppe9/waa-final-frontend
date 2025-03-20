@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Status from "./Status";
+import defaultImg from "../assets/default.png";
 
 export default function PropertyModal({ property, onClose }) {
     const [selectedOffer, setSelectedOffer] = useState(null);
@@ -56,8 +57,8 @@ export default function PropertyModal({ property, onClose }) {
 
                     <div className="w-1/3 mr-6">
                         <img
-                            src={property.image}
-                            alt={property.title}
+                            src={property.fileResources.length > 0 ? `http://52.90.131.91/api/v1/file-resources/${property.fileResources[0].storageKey}` : defaultImg}
+                            alt={property.name}
                             className="w-full h-48 object-cover rounded-md"
                         />
                     </div>
@@ -65,8 +66,8 @@ export default function PropertyModal({ property, onClose }) {
                     <div className="w-2/3">
                         <div className="mb-4">
                             <Status status="Available" />
-                            <h3 className="text-xl font-semibold">{property.title}</h3>
-                            <span className="text-sm text-gray-500">{property.location}</span>
+                            <h3 className="text-xl font-semibold">{property.name}</h3>
+                            <span className="text-sm text-gray-500">{property.address}</span>
                         </div>
                         <div className="mb-4">
                             <span className="text-blue-600 font-bold text-lg">${property.price}</span>
@@ -76,10 +77,7 @@ export default function PropertyModal({ property, onClose }) {
                         </div>
                         <div className="flex justify-between text-sm text-gray-500 mb-4">
                             <div>
-                                <span>{property.beds} beds</span> | <span>{property.baths} baths</span> | <span>{property.area}</span>
-                            </div>
-                            <div>
-                                <span>{property.offerCount} 3 offers</span>
+                                <span>{property.offers.length} offers</span>
                             </div>
                         </div>
                     </div>
