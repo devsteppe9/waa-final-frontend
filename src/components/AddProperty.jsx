@@ -12,6 +12,7 @@ export default function AddProperty({ onClose, fetchMyProperties  }) {
     totalArea: 0,
     fileResources: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
   const accessToken = localStorage.getItem("access_token");
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -38,6 +39,7 @@ export default function AddProperty({ onClose, fetchMyProperties  }) {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       const res = await apiRequest(
         `${API_BASE_URL}/properties`,
         "POST",
@@ -55,17 +57,9 @@ export default function AddProperty({ onClose, fetchMyProperties  }) {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        await fetchMyProperties();
-
-        // const response = await apiRequest(
-        //   `${API_BASE_URL}/properties/${createdProperty?.id}/images`, 
-        //   'POST', 
-        //   formData,
-        //   null,
-        //   { "Content-Type": "multipart/form-data" },
-        //   false
-        // );
-        // console.log(response);
+      }
+      await fetchMyProperties();
+      setIsLoading(false);
         onClose();
         setNewProperty({
           name: "",
@@ -75,9 +69,7 @@ export default function AddProperty({ onClose, fetchMyProperties  }) {
           totalArea: 0,
           fileResources: [],
         });
-    
         alert("Property created and images uploaded successfully!");
-      }
     } catch (err) {
       console.log(err);
     }
@@ -234,6 +226,7 @@ export default function AddProperty({ onClose, fetchMyProperties  }) {
           <button
             onClick={handleSubmit}
             className="bg-blue-500 text-white px-6 py-2 rounded"
+            disabled={isLoading}
           >
             Add Property
           </button>
