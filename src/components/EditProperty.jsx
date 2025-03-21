@@ -40,7 +40,10 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       await apiRequest(
         `${API_BASE_URL}/properties/${property.id}`,
         'PATCH',
-        changedFields
+        changedFields,
+        null,
+        null,
+        false
       );
         alert("Property updated successfully");
         onClose();

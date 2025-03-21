@@ -7,11 +7,12 @@ import DeleteModal from "./DeleteModal";
 import { API_BASE_URL } from "../config";
 import defaultImg from "../assets/default.png";
 import Status from "./Status";
+import { apiRequest } from "../request";
 
 export default function PropertyList({ properties, fetchMyProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [search, setSearch] = useState("");
-  const [filteredProperties, setFilteredProperties] = useState([]);  // Initialize as empty array
+  const [filteredProperties, setFilteredProperties] = useState([]);  
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -46,6 +47,25 @@ export default function PropertyList({ properties, fetchMyProperties }) {
 
     setFilteredProperties(filtered);
   }, [search, properties]); 
+  const handleContingent = async () => {
+    try {
+        await apiRequest(`${API_BASE_URL}/properties/${selectedProperty.id}`, "PATCH", { status: "CONTINGENT" }, null, null, false);
+        await fetchMyProperties();
+        selectedProperty.status = "CONTINGENT";
+    } catch (error) {
+        console.error("There was an error changing the property status!", error);
+    }
+};
+
+const handleMarkAsSold = async () => {
+    try {
+        await apiRequest(`${API_BASE_URL}/properties/${selectedProperty.id}`, "PATCH", { status: "SOLD" }, null, null, false);
+        await fetchMyProperties();
+        selectedProperty.status = "SOLD";
+    } catch (error) {
+        console.error("There was an error changing the property status!", error);
+    }
+};
   const renderActions = (row) => {
     switch (row.status) {
       case "AVAILABLE":
@@ -104,17 +124,8 @@ export default function PropertyList({ properties, fetchMyProperties }) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle cancel action
-              }}
-              className="text-red-500 hover:text-red-600 text-lg"
-              title="Cancel"
-            >
-              <i className="fa-solid fa-ban"></i>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle add contingent action
+                setSelectedProperty(row);
+                handleContingent();
               }}
               className="text-green-500 hover:text-green-600 text-lg"
               title="Add Contingent"
@@ -140,22 +151,13 @@ export default function PropertyList({ properties, fetchMyProperties }) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle mark as sold action
+                setSelectedProperty(row);
+                handleMarkAsSold();
               }}
               className="text-green-500 hover:text-green-600 text-lg"
               title="Mark as Sold"
             >
               <i className="fa-solid fa-check-circle"></i>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle cancel action
-              }}
-              className="text-red-500 hover:text-red-600 text-lg"
-              title="Cancel"
-            >
-              <i className="fa-solid fa-ban"></i>
             </button>
           </div>
         );
