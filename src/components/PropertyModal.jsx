@@ -133,14 +133,11 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                         </div>
                         <div className="grid grid-cols-1 gap-4">
                             {property?.fileResources?.length > 0 ? (
-                                property.fileResources.map((file, index) => (
-                                    <img
-                                        key={index}
-                                        src={`${API_BASE_URL}/file-resources/${file.storageKey}`}
-                                        alt={`${property.name} - ${index + 1}`}
-                                        className="w-48 h-48 object-cover rounded-md"
-                                    />
-                                ))
+                                <img
+                                    src={`${API_BASE_URL}/file-resources/${property.fileResources[0].storageKey}`}
+                                    alt={`${property.name} - 1`}
+                                    className="w-48 h-48 object-cover rounded-md"
+                                />
                             ) : (
                                 <img
                                     src={defaultImg}
