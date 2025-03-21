@@ -5,13 +5,13 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
     const queryString = new URLSearchParams(params).toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
-    const headers = Object.keys(additionalHeaders).length > 0 
-    ? additionalHeaders 
-    : {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`, // Attach JWT token
-    };
-    if(!json){
+    const headers = Object.keys(additionalHeaders).length > 0
+        ? additionalHeaders
+        : {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // Attach JWT token
+        };
+    if (!json) {
         console.log(body);
         return;
     }
@@ -24,7 +24,7 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
 
     try {
         const response = await fetch(fullUrl, options);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
