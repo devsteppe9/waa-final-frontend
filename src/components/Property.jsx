@@ -1,12 +1,13 @@
 import { API_BASE_URL } from "../config"
 import { useState } from "react";
 
-export default function Property({ property, setSelectedProperty, addFavorite }) {
-    const [isFavorite, setIsFavorite] = useState(property.favouriteId !== 0);
+export default function Property({ property, setSelectedProperty, changeFavorite }) {
+    const [isFavorite, setIsFavorite] = useState(property.favourites);
 
     const toggleFavorite = async () => {
+        const newValue = !isFavorite;
         setIsFavorite((prev) => !prev);
-        addFavorite(property.id);
+        changeFavorite(property.id, newValue);
     };
 
     return (
