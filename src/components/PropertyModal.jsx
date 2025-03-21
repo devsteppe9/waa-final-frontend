@@ -198,7 +198,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                                     </span>
                                 </div>
                                 <div>
-                                    {offer.status === "OPEN" && (
+                                    {property.status !== "SOLD" && offer.status === "OPEN" && (
                                         <button
                                             onClick={() => handleAcceptOffer(offer.id)}
                                             className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
@@ -206,7 +206,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                                             Accept
                                         </button>
                                     )}
-                                    {offer.status !== "REJECTED" && (<button
+                                    {property.status !== "SOLD" && offer.status !== "REJECTED" && (<button
                                         onClick={() => handleRejectOffer(offer.id)}
                                         className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
                                     >
