@@ -1,4 +1,6 @@
-export const apiRequest = async (url, method = "GET", body = null, params = {}, additionalHeaders = {}, json = true) => {
+
+export const apiRequest = async (url, method = "GET", body = null, params = {}, additionalHeaders = {},responsebody=true) => {
+
     const accessToken = localStorage.getItem("access_token"); // Retrieve JWT token
 
     // Convert params object into a query string if params exist
@@ -28,19 +30,11 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const contentLength = response.headers.get("content-length");
-
-        if (response.status === 204 || (contentLength && parseInt(contentLength) === 0)) {
-            return null; 
+        if (responsebody) {
+            // Parse response JSON
+            return await response.json();
         }
-
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            return null;
-        }
-        if (response) {
-            return await response.json(); // Parse response JSON
-        }
+         
     } catch (error) {
         console.error("API Request Failed:", error);
         throw error; // Rethrow for handling

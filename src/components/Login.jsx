@@ -2,16 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function Login() {
     const navigate = useNavigate();
     const [showLoginPassword, setShowLoginPassword] = useState(false);
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const login = async () => {
         const postData = {
-            'username': email,
+            'username': username,
             'password': password
         };
         const res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -64,9 +63,9 @@ export default function Login() {
                                 id="login-email"
                                 name="email"
                                 autoComplete="email"
-                                value={email}
+                                value={username}
                                 required
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => setUsername(e.target.value)}
                                 className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3.5 transition duration-150"
                                 placeholder="your@email.com"
                             />

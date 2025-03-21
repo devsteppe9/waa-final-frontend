@@ -23,8 +23,10 @@ export default function Owner() {
     return words[0][0].toUpperCase() + words[1][0].toUpperCase();
   };
   const fetchMyProperties = async () => {
-    const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
-    setMyProperties(data);
+    apiRequest(`${API_BASE_URL}/properties`)
+      .then((response) => setMyProperties(response))
+      .catch((error) => console.error("Error fetching data:", error));
+
   };
   useEffect(() => {
     fetchMyProperties();
