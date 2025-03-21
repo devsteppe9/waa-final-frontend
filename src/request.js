@@ -28,8 +28,18 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        const contentLength = response.headers.get("content-length");
+
+        if (response.status === 204 || (contentLength && parseInt(contentLength) === 0)) {
+            return null; 
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            return null;
+        }
         if (response) {
-            return response.status === 204 ? null : await response.json(); // Parse response JSON
+            return await response.json(); // Parse response JSON
         }
     } catch (error) {
         console.error("API Request Failed:", error);
