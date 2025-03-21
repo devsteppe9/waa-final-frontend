@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../config"
 import { useState } from "react";
 
 export default function Property({ property, setSelectedProperty, changeFavorite }) {
-    const [isFavorite, setIsFavorite] = useState(property.favourites);
+    const [isFavorite, setIsFavorite] = useState(property.favourites && property.favourites.length > 0 ? 1 : 0);
 
     const toggleFavorite = async (favorite_id) => {
         const newValue = !isFavorite;
@@ -22,9 +22,16 @@ export default function Property({ property, setSelectedProperty, changeFavorite
                         alt={property.name}
                         className="property-image w-full h-48 object-cover" />
                     {localStorage.getItem('user') &&
-                        <button onClick={() => toggleFavorite(property.favourites[0].id)} title="Save" className="absolute top-3 right-3 bg-white p-1.5 rounded-full shadow hover:bg-gray-100">
-                            <i className={`fa-${isFavorite == 0 ? 'regular' : 'solid'} fa-heart text-red-600`}></i>
+
+                        <button
+                            onClick={() => toggleFavorite(property.favourites?.[0]?.id)} // This will pass undefined if favourites[0] is not available
+                            title="Save"
+                            className="absolute top-3 right-3 bg-white p-1.5 rounded-full shadow hover:bg-gray-100"
+                        >
+                            <i className={`fa-${isFavorite === 0 ? 'regular' : 'solid'} fa-heart text-red-600`}></i>
                         </button>
+
+
                     }
                 </div>
                 <div className="p-4">
