@@ -5,18 +5,30 @@ import { API_BASE_URL } from "../config";
 import { apiRequest } from '../request'
 
 
-export default function PropertyModal({ property, onClose }) {
+export default function PropertyModal({ propertyId, onClose }) {
     const [selectedOffer, setSelectedOffer] = useState(null);
-    const [offers, setOffers] = useState(property.offers || []);    
+    const [offers, setOffers] = useState([]);    
+    const [property, setProperty] = useState({});
 
+     const fetchProperty = async () => {
+        try {
+            const response = await apiRequest(`${API_BASE_URL}/properties/${propertyId}`, "GET");
+            setProperty(response);
+            setOffers(response.offers);
+        } catch (error) {
+            console.error("There was an error fetching the property data!", error);
+        }
+     };
+    
     const handleAcceptOffer = async (offerId) => {
         try {
-            await apiRequest(`${API_BASE_URL}/offers/${offerId}`,"PATCH", { status: "ACCEPTED" });
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}/offers/${offerId}`,"PATCH", { status: "ACCEPTED" });
             setOffers((prevOffers) =>
                 prevOffers.map((offer) =>
                     offer.id === offerId ? { ...offer, status: "ACCEPTED" } : offer
                 )
             );
+            fetchProperty();
             setSelectedOffer(offerId);
         } catch (error) {
             console.error("There was an error rejecting the offer!", error);
@@ -26,22 +38,23 @@ export default function PropertyModal({ property, onClose }) {
 
     const handleRejectOffer = async (offerId) => {
         try {
-            await apiRequest(`${API_BASE_URL}/offers/${offerId}`,"PATCH", { status: "REJECTED" });
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}/offers/${offerId}`,"PATCH", { status: "REJECTED" });
             setOffers((prevOffers) =>
                 prevOffers.map((offer) =>
                     offer.id === offerId ? { ...offer, status: "REJECTED" } : offer
                 )
             );
+            fetchProperty();
             setSelectedOffer(null);
         } catch (error) {
-            console.error("There was an error rejecting the offer!", error);
+            console.error("There was an error accepting the offer!", error);
         }
     };
 
     const handleContingent = async () => {
         try {
             await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" });
-            property.status = "CONTINGENT";
+            setProperty(...property, { status: "CONTINGENT" });
         } catch (error) {
             console.error("There was an error changing the property status!", error);
         }
@@ -56,6 +69,7 @@ export default function PropertyModal({ property, onClose }) {
         }
     };
     useEffect(() => {
+        fetchProperty();
         document.body.style.overflow = "hidden";
         const handleKeyDown = (e) => {
             if (e.key === "Escape") {
@@ -67,6 +81,8 @@ export default function PropertyModal({ property, onClose }) {
             document.body.style.overflow = "unset";
             document.removeEventListener("keydown", handleKeyDown);
         };
+
+        
     }, [onClose]);
     
     const handleOverlayClick = (e) => {
@@ -95,19 +111,7 @@ export default function PropertyModal({ property, onClose }) {
                     <i className="fa-solid fa-xmark text-2xl"></i>
                 </button>
 
-                <div className="mb-6">
-                    <div className="flex justify-between items-start mb-4 mr-8">
-                        <div>
-                            <h3 className="text-2xl font-bold text-gray-800 mb-1">{property.name}</h3>
-                            <p className="text-gray-600 text-sm flex items-center">
-                                <i className="fa-solid fa-location-dot mr-2"></i>
-                                {property.address}
-                            </p>
-                        </div>
-                        <Status status={property.status} />
-                    </div>
-
-
+                <div className="mb-6 flex justify-between">
                     <div className="w-2/3">
                         <div className="mb-4">
                             <Status status={property.status} />
@@ -115,58 +119,56 @@ export default function PropertyModal({ property, onClose }) {
                             <span className="text-sm text-gray-500">{property.address}</span>
                         </div>
                         <div className="mb-4">
-                            <span className="text-blue-600 font-bold text-lg">{formatCurrency(property.price)}</span>
+                            <p className="text-gray-600 leading-relaxed">{property.description}</p>
                         </div>
                     </div>
-
-                    <div className="mb-6">
-                        <h4 className="text-gray-700 font-semibold text-lg mb-2">Description</h4>
-                        <p className="text-gray-600 leading-relaxed">{property.description}</p>
-                    </div>
-
-                    <div className="mb-6">
-                        <h4 className="text-gray-700 font-semibold text-lg mb-3">Property Images</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="w-1/3 text-right">
+                        <div className="mb-4">
+                            <span className="text-blue-600 font-bold text-lg">{formatCurrency(property.price)}</span>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4">
                             {property.fileResources?.length > 0 ? (
                                 property.fileResources.map((file, index) => (
                                     <img
                                         key={index}
                                         src={`${API_BASE_URL}/file-resources/${file.storageKey}`}
                                         alt={`${property.name} - ${index + 1}`}
-                                        className="w-full h-48 object-cover rounded-md"
+                                        className="w-48 h-48 object-cover rounded-md"
                                     />
                                 ))
                             ) : (
                                 <img
                                     src={defaultImg}
                                     alt={property.name}
-                                    className="w-full h-48 object-cover rounded-md"
+                                    className="w-24 h-24 object-cover rounded-md"
                                 />
                             )}
                         </div>
-                        {property.status === "PENDING" && (
-                            <button
-                                onClick={handleContingent}
-                                className="bg-orange-500 text-white px-4 py-2 rounded"
-                            >
-                                Contingent
-                            </button>
-                        )}
-
-                        {property.status === "CONTINGENT" && (
-                            <button
-                                onClick={handleMarkAsSold}
-                                className="bg-red-500 text-white px-4 py-2 rounded"
-                            >
-                                Mark as sold
-                            </button>
-                        )}
                     </div>
+                </div>
+
+                <div className="mb-6">
+                    {property.status === "PENDING" && (
+                        <button
+                            onClick={handleContingent}
+                            className="bg-orange-500 text-white px-4 py-2 rounded"
+                        >
+                            Contingent
+                        </button>
+                    )}
+
+                    {property.status === "CONTINGENT" && (
+                        <button
+                            onClick={handleMarkAsSold}
+                            className="bg-red-500 text-white px-4 py-2 rounded"
+                        >
+                            Mark as sold
+                        </button>
+                    )}
                 </div>
 
                 <div className="mt-6">
                     <h4 className="text-gray-700 font-semibold text-lg mb-4">Offers</h4>
-                    {/* {property.offers.map((offer) => ( */}
                     {offers.map((offer) => (
                         <div
                             key={offer.id}
@@ -205,7 +207,7 @@ export default function PropertyModal({ property, onClose }) {
                                         </button>
                                     )}
                                     <button
-                                        onClick={handleRejectOffer}
+                                        onClick={() => handleRejectOffer(offer.id)}
                                         className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
                                     >
                                         Reject
