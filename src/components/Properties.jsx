@@ -23,7 +23,7 @@ export default function Properties() {
             "userId": JSON.parse(localStorage.getItem('user')).id,
             "propertyId": property_id
         }
-        const data = await apiRequest(`${API_BASE_URL}/favorite`, 'POST', postData);
+        const data = await apiRequest(`${API_BASE_URL}/favorites`, 'POST', postData);
         console.log(data);
     }
 
@@ -96,7 +96,7 @@ export default function Properties() {
 
 
     const fetchProperties = async () => {
-        const data = await apiRequest(`${API_BASE_URL}/properties`);
+        const data = await apiRequest(`${API_BASE_URL}/properties?withFavs=true `);
         setProperties(data);
         setFilteredProperties(data);
 
