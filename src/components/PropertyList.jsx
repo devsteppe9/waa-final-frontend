@@ -47,25 +47,6 @@ export default function PropertyList({ properties, fetchMyProperties }) {
 
     setFilteredProperties(filtered);
   }, [search, properties]); 
-  const handleContingent = async () => {
-    try {
-        await apiRequest(`${API_BASE_URL}/properties/${selectedProperty.id}`, "PATCH", { status: "CONTINGENT" }, null, null, false);
-        await fetchMyProperties();
-        selectedProperty.status = "CONTINGENT";
-    } catch (error) {
-        console.error("There was an error changing the property status!", error);
-    }
-};
-
-const handleMarkAsSold = async () => {
-    try {
-        await apiRequest(`${API_BASE_URL}/properties/${selectedProperty.id}`, "PATCH", { status: "SOLD" }, null, null, false);
-        await fetchMyProperties();
-        selectedProperty.status = "SOLD";
-    } catch (error) {
-        console.error("There was an error changing the property status!", error);
-    }
-};
   const renderActions = (row) => {
     switch (row.status) {
       case "AVAILABLE":
@@ -121,7 +102,7 @@ const handleMarkAsSold = async () => {
             >
               <i className="fa-solid fa-eye"></i>
             </button>
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedProperty(row);
@@ -131,7 +112,7 @@ const handleMarkAsSold = async () => {
               title="Add Contingent"
             >
               <i className="fa-solid fa-file-signature"></i>
-            </button>
+            </button> */}
           </div>
         );
 
@@ -148,7 +129,7 @@ const handleMarkAsSold = async () => {
             >
               <i className="fa-solid fa-eye"></i>
             </button>
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedProperty(row);
@@ -157,8 +138,8 @@ const handleMarkAsSold = async () => {
               className="text-green-500 hover:text-green-600 text-lg"
               title="Mark as Sold"
             >
-              <i className="fa-solid fa-check-circle"></i>
-            </button>
+              <i className="fa-solid fa-check-circle"></i> */}
+            {/* </button> */}
           </div>
         );
 
@@ -266,7 +247,7 @@ const handleMarkAsSold = async () => {
       />
 
       {isViewOpen && (
-        <PropertyModal property={selectedProperty} onClose={closeModal} />
+        <PropertyModal propertyId={selectedProperty.id} onClose={closeModal} />
       )}
 
       {isEditOpen && (

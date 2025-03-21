@@ -13,15 +13,11 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`, // Attach JWT token
         };
-    if (!json) {
-        console.log(body);
-        return;
-    }
 
     const options = {
         method,
         headers,
-        ...(body && method !== "GET" && { body: json ? JSON.stringify(body) : body }), // Include body if not GET
+        ...(body && method !== "GET" && { body:JSON.stringify(body)}), // Include body if not GET
     };
 
     try {
@@ -34,7 +30,7 @@ export const apiRequest = async (url, method = "GET", body = null, params = {}, 
             // Parse response JSON
             return await response.json();
         }
-         
+         return;
     } catch (error) {
         console.error("API Request Failed:", error);
         throw error; // Rethrow for handling
