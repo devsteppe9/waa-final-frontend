@@ -28,6 +28,7 @@ export default function Properties() {
             }
             apiRequest(`${API_BASE_URL}/favorites`, 'POST', postData);
         } else {
+            const user_id = JSON.parse(localStorage.getItem('user')).id;
             apiRequest(`${API_BASE_URL}/favorites/${favorite_id}`, 'DELETE');
         }
 
