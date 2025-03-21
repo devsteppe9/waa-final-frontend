@@ -55,7 +55,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
 
     const handleContingent = async () => {
         try {
-            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" },null,null,false);
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" },{},{},false);
             setProperty({ ...property, status: "CONTINGENT" });
             fetchMyProperties();
 
@@ -66,7 +66,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
 
     const handleMarkAsSold = async () => {
         try {
-            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" },null,null,false);
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" },{},{},false);
             setProperty({ ...property, status: "SOLD" });
             fetchMyProperties();
         } catch (error) {
