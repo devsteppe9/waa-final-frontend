@@ -20,7 +20,7 @@ export default function Properties() {
     const [showBookmarked, setShowBookmarked] = useState(false);
 
 
-    const changeFavorite = (property_id, new_value) => {
+    const changeFavorite = (property_id, new_value, favorite_id) => {
         if (new_value) {
             const postData = {
                 "userId": JSON.parse(localStorage.getItem('user')).id,
@@ -28,17 +28,17 @@ export default function Properties() {
             }
             apiRequest(`${API_BASE_URL}/favorites`, 'POST', postData);
         } else {
-            apiRequest(`${API_BASE_URL}/favorites/${property_id}`, 'DELETE');
+            apiRequest(`${API_BASE_URL}/favorites/${favorite_id}`, 'DELETE');
         }
 
     }
 
     const handleChange = (e) => {
         if (e.target.id == 'offerprice') {
-            console.log('offerprice');
+
             setOfferPrice(e.target.value);
         } else if (e.target.id == 'offermessage') {
-            console.log('message');
+
             setOfferMessage(e.target.value);
         }
     }
