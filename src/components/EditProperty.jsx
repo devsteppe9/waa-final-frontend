@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import defaultImg from "../assets/default.png";
-import axios from "axios";
 import { API_BASE_URL } from "../config";
+import { apiRequest } from "../request";
 
 export default function EditProperty({ property, onClose, fetchMyProperties }) {
   const [updatedProperty, setUpdatedProperty] = useState({
@@ -10,6 +10,7 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
     price: property.price || 0,
     description: property.description || "",
     totalArea: property.totalArea || 0,
+    status: property.status || "",
     fileResources: property.fileResources || [],
   });
 
@@ -27,35 +28,21 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       [name]: value,
     }));
   };
-
   const handleSubmit = async () => {
-    const payload = {
-      ...updatedProperty,
-      price: Number(updatedProperty.price),
-      totalArea: Number(updatedProperty.totalArea)
-    };
-
-    const res = await axios.patch(`${API_BASE_URL}/properties/${property.id}`, payload, {
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${userDetails.token}`,
-      },
-    });
+    const changedFields = Object.keys(updatedProperty).reduce((acc, key) => {
+      if (updatedProperty[key] !== property[key]) {
+        acc[key] = updatedProperty[key];
+      }
+      return acc;
+    }, {});
+    await apiRequest(
+      `${API_BASE_URL}/properties/${property.id}`,
+      "PATCH",
+      changedFields
+    );
+    alert("Property updated successfully");
     onClose();
-    setUpdatedProperty({
-      name: "",
-      address: "",
-      price: 0,
-      description: "",
-      totalArea: 0,
-      fileResources: [],
-    });
-    if (res.status === 200) {
-      // fetchMyProperties();
-      alert("Property updated successfully");
-    } else {
-      alert("Error updating property");
-    }
+    await fetchMyProperties();
   };
 
   const handleOverlayClick = (e) => {
@@ -63,8 +50,6 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       onClose();
     }
   };
-// console.log(property);
-
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 overflow-hidden"

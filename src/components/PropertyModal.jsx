@@ -23,6 +23,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
     const handleAcceptOffer = async (offerId) => {
         try {
             await apiRequest(`${API_BASE_URL}/properties/${property.id}/offers/${offerId}`,"PATCH", { status: "ACCEPTED" });
+
             setOffers((prevOffers) =>
                 prevOffers.map((offer) =>
                     offer.id === offerId ? { ...offer, status: "ACCEPTED" } : offer
@@ -33,12 +34,13 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
         } catch (error) {
             console.error("There was an error rejecting the offer!", error);
         }
-        
+
     };
 
     const handleRejectOffer = async (offerId) => {
         try {
             await apiRequest(`${API_BASE_URL}/properties/${property.id}/offers/${offerId}`,"PATCH", { status: "REJECTED" });
+
             setOffers((prevOffers) =>
                 prevOffers.map((offer) =>
                     offer.id === offerId ? { ...offer, status: "REJECTED" } : offer
@@ -56,12 +58,13 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
             await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" },null,null,false);
             setProperty({ ...property, status: "CONTINGENT" });
             fetchMyProperties();
+
         } catch (error) {
             console.error("There was an error changing the property status!", error);
         }
     };
 
-       const handleMarkAsSold = async () => {
+    const handleMarkAsSold = async () => {
         try {
             await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" },null,null,false);
             setProperty({ ...property, status: "SOLD" });
@@ -86,14 +89,14 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
 
         
     }, [onClose]);
-    
+
     const handleOverlayClick = (e) => {
         if (e.target === e.currentTarget) {
-          onClose();
+            onClose();
         }
 
     };
-    
+
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -174,9 +177,8 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                     {offers.map((offer) => (
                         <div
                             key={offer.id}
-                            className={`p-4 mb-4 border rounded-lg ${
-                                selectedOffer === offer.id ? 'bg-green-100' : 'bg-white'
-                            } ${selectedOffer !== null && selectedOffer !== offer.id ? 'opacity-50' : ''}`}
+                            className={`p-4 mb-4 border rounded-lg ${selectedOffer === offer.id ? 'bg-green-100' : 'bg-white'
+                                } ${selectedOffer !== null && selectedOffer !== offer.id ? 'opacity-50' : ''}`}
                         >
                             <div className="flex justify-between items-center">
                                 <div>
@@ -188,13 +190,12 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                             <div className="mt-2 flex justify-between text-sm text-gray-500">
                                 <div>
                                     <span
-                                        className={`${
-                                            offer.status === "Accepted"
+                                        className={`${offer.status === "Accepted"
                                                 ? "text-green-500"
                                                 : offer.status === "Rejected"
-                                                ? "text-red-500"
-                                                : "text-yellow-500"
-                                        }`}
+                                                    ? "text-red-500"
+                                                    : "text-yellow-500"
+                                            }`}
                                     >
                                         {offer.status}
                                     </span>
