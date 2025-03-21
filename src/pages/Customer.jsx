@@ -48,7 +48,7 @@ export default function Customer() {
         setCurrentTab('offers');
     }
     const fetchSavedProperties = async () => {
-        const data = await apiRequest(`${API_BASE_URL}/properties`, 'GET');
+        const data = await apiRequest(`${API_BASE_URL}/properties?withFavs=true`, 'GET');
         setSavedProperties(data);
         setCurrentTab('saved');
     }
@@ -57,7 +57,7 @@ export default function Customer() {
         setCurrentTab('properties');
     }
 
-    
+
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -90,9 +90,9 @@ export default function Customer() {
                                 <li onClick={fetchOfferHistory} className="cursor-pointer p-4 hover:bg-gray-200">
                                     <span>Offer History</span>
                                 </li>
-                                <li onClick={fetchSavedProperties} className="cursor-pointer p-4 hover:bg-gray-200">
+                                {/*<li onClick={fetchSavedProperties} className="cursor-pointer p-4 hover:bg-gray-200">
                                     <span>Saved Properties</span>
-                                </li>
+                                </li>*/}
                                 <li onClick={handleLogout} className="cursor-pointer p-4 hover:bg-gray-200">
                                     <span>Logout</span>
                                 </li>

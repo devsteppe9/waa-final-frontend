@@ -17,14 +17,20 @@ export default function Properties() {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [offerPrice, setOfferPrice] = useState('');
     const [offerMessage, setOfferMessage] = useState('');
+    const [showBookmarked, setShowBookmarked] = useState(false);
 
-    const addFavorite = async (property_id) => {
-        const postData = {
-            "userId": JSON.parse(localStorage.getItem('user')).id,
-            "propertyId": property_id
+
+    const changeFavorite = (property_id, new_value) => {
+        if (new_value) {
+            const postData = {
+                "userId": JSON.parse(localStorage.getItem('user')).id,
+                "propertyId": property_id
+            }
+            apiRequest(`${API_BASE_URL}/favorites`, 'POST', postData);
+        } else {
+            apiRequest(`${API_BASE_URL}/favorites/${property_id}`, 'DELETE');
         }
-        const data = await apiRequest(`${API_BASE_URL}/favorites`, 'POST', postData);
-        console.log(data);
+
     }
 
     const handleChange = (e) => {
@@ -70,7 +76,7 @@ export default function Properties() {
 
     useEffect(() => {
         filterProperties();
-    }, [searchName, searchLocation, minPrice, maxPrice, properties, sortOption]);
+    }, [searchName, searchLocation, minPrice, maxPrice, properties, sortOption, showBookmarked]);
 
     const filterProperties = () => {
         let filtered = properties.filter((property) => {
@@ -81,6 +87,10 @@ export default function Properties() {
                 (maxPrice === '' || parseFloat(property.price) <= parseFloat(maxPrice))
             );
         });
+
+        if (showBookmarked) {
+            filtered = filtered.filter(property => property.favourites && property.favourites.length > 0);
+        }
 
         if (sortOption === 'price-asc') {
             filtered.sort((a, b) => a.price - b.price);
@@ -94,9 +104,12 @@ export default function Properties() {
         setFilteredProperties(filtered);
     };
 
-
+    const filterSavedProperties = () => {
+        const filteredProperties = propertiez.filter(property => property.favourites && property.favourites.length > 0);
+        setFilteredProperties(filteredProperties);
+    }
     const fetchProperties = async () => {
-        const data = await apiRequest(`${API_BASE_URL}/properties?withFavs=true `);
+        const data = await apiRequest(`${API_BASE_URL}/properties`);
         setProperties(data);
         setFilteredProperties(data);
 
@@ -109,7 +122,7 @@ export default function Properties() {
     }, []);
     return (
         <>
-            <div className="mb-4 grid grid-cols-1 md:grid-cols-5 gap-4 border-b border-solid border-gray-300 pb-4">
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-6 gap-4 border-b border-solid border-gray-300 pb-4">
                 <input
                     type="text"
                     placeholder="Search by Name"
@@ -149,11 +162,24 @@ export default function Properties() {
                     <option value="date-asc">Date: Oldest First</option>
                     <option value="date-desc">Date: Newest First</option>
                 </select>
+                <div>
+                    <input
+                        type="checkbox"
+                        id="showBookmarked"
+                        checked={showBookmarked}
+                        onChange={(e) => setShowBookmarked(e.target.checked)}
+                        className="p-2 border border-gray-300 rounded-md"
+                    />
+                    <label htmlFor="showBookmarked" className="ml-2"> Bookmarked</label>
+
+                </div>
+
+
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {filteredProperties.length > 0 ? (
                     filteredProperties.map((property) => (
-                        <Property property={property} addFavorite={addFavorite} setSelectedProperty={setSelectedProperty} key={property.id} />
+                        <Property property={property} changeFavorite={changeFavorite} setSelectedProperty={setSelectedProperty} key={property.id} />
                     ))
                 ) : (
                     <div className="col-span-full flex flex-col items-center justify-center py-10 bg-gray-100 rounded-lg shadow-md border border-gray-300">
