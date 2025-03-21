@@ -2,24 +2,12 @@ import React from "react";
 import { API_BASE_URL } from "../config";
 import { apiRequest } from "../request";
 
-export default function DeleteModal({onClose, fetchMyProperties, property }) {
+export default function DeleteModal({ onClose, fetchMyProperties, property }) {
   const handleDelete = async () => {
-    try {
-      await apiRequest(
-        `${API_BASE_URL}/properties/${property?.id}`,
-        "DELETE",
-        null,
-        {},
-        { "Accept": "*/*" } 
-      );
-      
-      alert("Property deleted successfully");
-      await fetchMyProperties();
-      onClose();
-    } catch (error) {
-      console.error("Delete failed:", error);
-      alert("Failed to delete property");
-    }
+    await apiRequest(`${API_BASE_URL}/properties/${property?.id}`, "DELETE");
+    alert("Property deleted successfully");
+    await fetchMyProperties();
+    onClose();
   };
 
   return (
