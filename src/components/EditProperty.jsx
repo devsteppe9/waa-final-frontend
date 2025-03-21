@@ -28,28 +28,29 @@ export default function EditProperty({ property, onClose, fetchMyProperties }) {
       [name]: value,
     }));
   };
-
   const handleSubmit = async () => {
     try {
-      const payload = {
-        ...updatedProperty,
-        price: Number(updatedProperty.price),
-        totalArea: Number(updatedProperty.totalArea),
-        fileResources : []
-      };
-      console.log(payload);
-      const res = apiRequest(`${API_BASE_URL}/properties/${property.id}`, 'PATCH', payload);
-      if (res) {
+      const changedFields = Object.keys(updatedProperty).reduce((acc, key) => {
+        if (updatedProperty[key] !== property[key]) {
+          acc[key] = updatedProperty[key];
+        }
+        return acc;
+      }, {});
+
+      await apiRequest(
+        `${API_BASE_URL}/properties/${property.id}`,
+        'PATCH',
+        changedFields
+      );
         alert("Property updated successfully");
-        onClose(); 
-        await fetchMyProperties(); 
-      }
+        onClose();
+        await fetchMyProperties();
     } catch (error) {
-      console.error('Update error:', error);
+      console.error("Update error:", error);
       alert("Error updating property");
     }
   };
-
+  
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
