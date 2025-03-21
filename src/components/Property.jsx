@@ -1,6 +1,14 @@
 import { API_BASE_URL } from "../config"
+import { useState } from "react";
 
-export default function Property({ property, setSelectedProperty }) {
+export default function Property({ property, setSelectedProperty, addFavorite }) {
+    const [isFavorite, setIsFavorite] = useState(property.favouriteId !== 0);
+
+    const toggleFavorite = async () => {
+        setIsFavorite((prev) => !prev);
+        addFavorite(property.id);
+    };
+
     return (
         <>
             <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -12,9 +20,11 @@ export default function Property({ property, setSelectedProperty }) {
                             : "/https://sportsguff.com/assets/images/lazy.png"}
                         alt={property.name}
                         className="property-image w-full h-48 object-cover" />
-                    <button title="Save" className="absolute top-3 right-3 bg-white p-1.5 rounded-full shadow hover:bg-gray-100">
-                        <i className="fa-regular fa-heart text-gray-600"></i>
-                    </button>
+                    {localStorage.getItem('user') &&
+                        <button onClick={toggleFavorite} title="Save" className="absolute top-3 right-3 bg-white p-1.5 rounded-full shadow hover:bg-gray-100">
+                            <i className={`fa-${isFavorite == 0 ? 'regular' : 'solid'} fa-heart text-red-600`}></i>
+                        </button>
+                    }
                 </div>
                 <div className="p-4">
                     <div className="flex justify-between mb-1">
