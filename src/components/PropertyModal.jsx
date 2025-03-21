@@ -132,7 +132,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                             <span className="text-blue-600 font-bold text-lg">{formatCurrency(property.price)}</span>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
-                            {property.fileResources?.length > 0 ? (
+                            {property?.fileResources?.length > 0 ? (
                                 property.fileResources.map((file, index) => (
                                     <img
                                         key={index}
@@ -174,7 +174,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
 
                 <div className="mt-6">
                     <h4 className="text-gray-700 font-semibold text-lg mb-4">Offers</h4>
-                    {offers.map((offer) => (
+                    {offers?.length > 0 && offers.map((offer) => (
                         <div
                             key={offer.id}
                             className={`p-4 mb-4 border rounded-lg ${selectedOffer === offer.id ? 'bg-green-100' : 'bg-white'

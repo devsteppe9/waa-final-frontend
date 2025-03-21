@@ -4,7 +4,7 @@ import { apiRequest } from "../request";
 
 export default function DeleteModal({ onClose, fetchMyProperties, property }) {
   const handleDelete = async () => {
-    await apiRequest(`${API_BASE_URL}/properties/${property?.id}`, "DELETE");
+    await apiRequest(`${API_BASE_URL}/properties/${property?.id}`, "DELETE", null, {}, {}, false);
     alert("Property deleted successfully");
     await fetchMyProperties();
     onClose();
