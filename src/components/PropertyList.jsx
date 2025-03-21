@@ -122,7 +122,7 @@ export default function PropertyList({ properties, fetchMyProperties }) {
       />
 
       {isViewOpen && !isEditOpen && (
-        <PropertyModal propertyId={selectedProperty.id} onClose={closeModal} />
+        <PropertyModal propertyId={selectedProperty.id} fetchMyProperties={fetchMyProperties} onClose={closeModal} />
       )}
 
       {isEditOpen && (

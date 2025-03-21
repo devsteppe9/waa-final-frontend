@@ -5,7 +5,7 @@ import { API_BASE_URL } from "../config";
 import { apiRequest } from '../request'
 
 
-export default function PropertyModal({ propertyId, onClose }) {
+export default function PropertyModal({ propertyId, onClose , fetchMyProperties}) {
     const [selectedOffer, setSelectedOffer] = useState(null);
     const [offers, setOffers] = useState([]);    
     const [property, setProperty] = useState({});
@@ -53,8 +53,9 @@ export default function PropertyModal({ propertyId, onClose }) {
 
     const handleContingent = async () => {
         try {
-            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" });
-            setProperty(...property, { status: "CONTINGENT" });
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "CONTINGENT" },null,null,false);
+            setProperty({ ...property, status: "CONTINGENT" });
+            fetchMyProperties();
         } catch (error) {
             console.error("There was an error changing the property status!", error);
         }
@@ -62,8 +63,9 @@ export default function PropertyModal({ propertyId, onClose }) {
 
        const handleMarkAsSold = async () => {
         try {
-            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" });
-            property.status = "SOLD";
+            await apiRequest(`${API_BASE_URL}/properties/${property.id}`, "PATCH", { status: "SOLD" },null,null,false);
+            setProperty({ ...property, status: "SOLD" });
+            fetchMyProperties();
         } catch (error) {
             console.error("There was an error changing the property status!", error);
         }
@@ -206,12 +208,13 @@ export default function PropertyModal({ propertyId, onClose }) {
                                             Accept
                                         </button>
                                     )}
-                                    <button
+                                    {offer.status !== "REJECTED" && (<button
                                         onClick={() => handleRejectOffer(offer.id)}
                                         className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
                                     >
                                         Reject
                                     </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
