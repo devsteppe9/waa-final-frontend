@@ -194,7 +194,7 @@ export default function PropertyList({ properties, fetchMyProperties }) {
     {
       name: "Created",
       selector: (row) => {
-        const date = new Date(row?.created);
+        const date = new Date(row?.created ? row?.created : Date.now());
         const options = {
           year: "numeric",
           month: "short",
