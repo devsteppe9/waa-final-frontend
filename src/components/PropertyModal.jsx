@@ -133,14 +133,11 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                         </div>
                         <div className="grid grid-cols-1 gap-4">
                             {property?.fileResources?.length > 0 ? (
-                                property.fileResources.map((file, index) => (
-                                    <img
-                                        key={index}
-                                        src={`${API_BASE_URL}/file-resources/${file.storageKey}`}
-                                        alt={`${property.name} - ${index + 1}`}
-                                        className="w-48 h-48 object-cover rounded-md"
-                                    />
-                                ))
+                                <img
+                                    src={`${API_BASE_URL}/file-resources/${property.fileResources[0].storageKey}`}
+                                    alt={`${property.name} - 1`}
+                                    className="w-48 h-48 object-cover rounded-md"
+                                />
                             ) : (
                                 <img
                                     src={defaultImg}
@@ -201,7 +198,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                                     </span>
                                 </div>
                                 <div>
-                                    {offer.status === "OPEN" && (
+                                    {property.status !== "SOLD" && offer.status === "OPEN" && (
                                         <button
                                             onClick={() => handleAcceptOffer(offer.id)}
                                             className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
@@ -209,7 +206,7 @@ export default function PropertyModal({ propertyId, onClose , fetchMyProperties}
                                             Accept
                                         </button>
                                     )}
-                                    {offer.status !== "REJECTED" && (<button
+                                    {property.status !== "SOLD" && offer.status !== "REJECTED" && (<button
                                         onClick={() => handleRejectOffer(offer.id)}
                                         className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
                                     >
