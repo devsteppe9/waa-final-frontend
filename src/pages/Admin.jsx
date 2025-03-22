@@ -118,11 +118,18 @@ export default function Admin() {
         },
     ];
 
-    const handleLogout = () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
-        navigate("/");
+    const handleLogout = async () => {
+        try {
+            await apiRequest(`${API_BASE_URL}/auth/logout`, "POST", null, {}, {},false);
+        } catch (error) {
+            console.error("Error logging out:", error);
+        } finally {
+            localStorage.removeItem("role");
+            localStorage.removeItem("user");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            navigate("/");
+        }
     };
 
     return (
