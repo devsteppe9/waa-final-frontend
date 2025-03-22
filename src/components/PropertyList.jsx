@@ -7,7 +7,6 @@ import DeleteModal from "./DeleteModal";
 import { API_BASE_URL } from "../config";
 import defaultImg from "../assets/default.png";
 import Status from "./Status";
-import { apiRequest } from "../request";
 
 export default function PropertyList({ properties, fetchMyProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -247,7 +246,7 @@ export default function PropertyList({ properties, fetchMyProperties }) {
       />
 
       {isViewOpen && (
-        <PropertyModal propertyId={selectedProperty.id} onClose={closeModal} fetchMyProperties={fetchMyProperties} />
+        <PropertyModal propertyId={selectedProperty.id} onClose={closeModal} fetchMyProperties={fetchMyProperties}/>
       )}
 
       {isEditOpen && (
